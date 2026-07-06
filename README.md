@@ -14,7 +14,7 @@ mixtures typical of real PDX samples.
 
 ```r
 # install.packages("devtools")
-devtools::install_github("U4HELPP/multipletR")
+devtools::install_github("Alex05a/multipletR")
 ```
 
 The Seurat helper functions additionally require the `Seurat` package.
