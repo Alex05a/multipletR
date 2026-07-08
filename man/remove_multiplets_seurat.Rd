@@ -2,40 +2,56 @@
 % Please edit documentation in R/remove_multiplets_seurat.R
 \name{remove_multiplets_seurat}
 \alias{remove_multiplets_seurat}
-\title{Remove detected multiplets from a Seurat object}
+\title{Annotate (and optionally remove) multiplets in a Seurat object}
 \usage{
 remove_multiplets_seurat(
   seurat_obj,
   multiplets,
-  barcode_col = "barcode",
-  classification_col = "our_classification"
+  remove = TRUE,
+  barcode_col = "barcode"
 )
 }
 \arguments{
 \item{seurat_obj}{A Seurat object whose cell names (colnames) are barcodes.}
 
-\item{multiplets}{Either (a) the data frame returned by
-\code{detect_multiplets} (which has an \code{our_classification} column and
-a barcode column), or (b) a character vector of multiplet barcodes to remove.}
+\item{multiplets}{The data frame returned by \code{\link{detect_multiplets}}
+(must contain \code{barcode}, \code{our_classification}, \code{pct_human},
+and \code{pct_mouse}).}
 
-\item{barcode_col}{Name of the barcode column when \code{multiplets} is a data
-frame. Default "barcode".}
+\item{remove}{Logical. If \code{TRUE} (the default), the detected multiplets
+are removed from the returned object. If \code{FALSE}, all cells are kept and
+only the metadata is added.}
 
-\item{classification_col}{Name of the classification column when
-\code{multiplets} is a data frame. Default "our_classification".}
+\item{barcode_col}{Name of the barcode column in \code{multiplets}. Default
+"barcode".}
 }
 \value{
-The Seurat object subset to the cells that are NOT multiplets.
+The Seurat object with three added metadata columns
+(\code{multipletR_class}, \code{multipletR_pct_human},
+\code{multipletR_pct_mouse}). If \code{remove = TRUE}, the multiplet cells
+are also dropped.
 }
 \description{
-Convenience function to subset a Seurat object to the singlet barcodes,
-removing the barcodes that \code{\link{detect_multiplets}} flagged as
-multiplets. This is a thin wrapper around Seurat's subsetting so users do not
-have to match barcodes by hand.
+Adds multipletR's per-cell classification to a Seurat object's metadata and,
+by default, removes the detected multiplets so the object is ready for
+downstream analysis. Set \code{remove = FALSE} to keep all cells and only
+annotate them (useful for visualizing where the multiplets fall, e.g. on a
+UMAP colored by \code{multipletR_class} before deciding whether to filter).
+}
+\details{
+The classification follows the same idea as doublet-detection tools such as
+DoubletFinder: each cell is labeled Human, Mouse, or Multiplet, and the
+percent human / percent mouse are added per cell.
 }
 \examples{
 \dontrun{
   res <- detect_multiplets("gem_classification.csv", "out.csv")
-  seu <- remove_multiplets_seurat(seu, res)
+
+  # Default: annotate and remove multiplets, ready for downstream analysis
+  seu_clean <- remove_multiplets_seurat(seu, res)
+
+  # Annotate only, keeping all cells (e.g. to visualize on a UMAP first)
+  seu <- remove_multiplets_seurat(seu, res, remove = FALSE)
+  DimPlot(seu, group.by = "multipletR_class")
 }
 }

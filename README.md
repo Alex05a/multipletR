@@ -46,25 +46,28 @@ finds appear in the central band where human and mouse reads are balanced.
 
 ## Using the results with Seurat
 
-`annotate_multiplets_seurat()` adds our classification to a Seurat object's
-metadata (Human / Mouse / Multiplet, plus percent human and percent mouse per
-cell), following the same pattern as tools like DoubletFinder — it annotates
-rather than removes, so you decide whether to filter.
+`remove_multiplets_seurat()` works on a Seurat object. It adds our per-cell
+classification to the object's metadata (Human / Mouse / Multiplet, plus percent
+human and percent mouse per cell) and, by default, removes the detected
+multiplets so the object is ready for downstream analysis. Set `remove = FALSE`
+to keep all cells and only annotate them — useful for visualizing where the
+multiplets fall before deciding whether to filter, following the same idea as
+tools like DoubletFinder.
 
 ```r
 library(Seurat)
 
-seu <- annotate_multiplets_seurat(seu, res)
+# Default: annotate and remove the multiplets
+seu_clean <- remove_multiplets_seurat(seu, res)
 
+# Or annotate only (keep all cells) to inspect them first:
+seu <- remove_multiplets_seurat(seu, res, remove = FALSE)
 table(seu$multipletR_class)
 #>     Human     Mouse  Multiplet
 #>     10937      2432        280
 
 # Visualize where the multiplets fall on a UMAP:
 DimPlot(seu, group.by = "multipletR_class")
-
-# Or remove them for downstream analysis:
-seu_clean <- remove_multiplets_seurat(seu, res)
 ```
 
 ## Adjusting the parameters
@@ -93,11 +96,8 @@ every argument.
 
 | Function | Purpose |
 |---|---|
-| `detect_multiplets()` | Detect multiplets from a Cell Ranger GEM classification file; add our classification and diagnostic plots. |
-| `annotate_multiplets_seurat()` | Add Human / Mouse / Multiplet classification and percent human/mouse to a Seurat object's metadata. |
-| `remove_multiplets_seurat()` | Subset a Seurat object to drop the detected multiplets. |
-| `calculate_adaptive_metrics()` | Score the distribution quality (overlap, mode difference, bimodality) of any multiplet set — e.g. to compare our calls against 10x. |
-| `find_adaptive_thresholds_3t()` | The underlying adaptive three-threshold engine. |
+| `detect_multiplets()` | Detect multiplets from a Cell Ranger GEM classification file; add our classification and draw diagnostic plots. |
+| `remove_multiplets_seurat()` | Annotate a Seurat object with our classification (Human / Mouse / Multiplet and percent human/mouse) and, by default, remove the multiplets. Set `remove = FALSE` to annotate only. |
 
 ## How it works
 
