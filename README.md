@@ -12,9 +12,17 @@ mixtures typical of real PDX samples.
 
 ## Installation
 
+Install the released version as: 
+
 ```r
-# install.packages("devtools")
-devtools::install_github("Alex05a/multipletR")
+# install.packages("remotes")
+remotes::install_github("dozmorovlab/multipletR")
+```
+
+For the latest development version, use:
+
+```r
+remotes::install_github("Alex05a/multipletR")
 ```
 
 The Seurat helper functions additionally require the `Seurat` package.
