@@ -63,9 +63,10 @@ res <- detect_multiplets(
 
 # The result has the original data plus our classification and percentages:
 head(res)
-#>   barcode  GRCh38  GRCm39  call       our_classification  pct_human  pct_mouse
-#>   ...      ...     ...     GRCh38     Singlet             99.5       0.5
-#>   ...      ...     ...     Multiplet  Multiplet           54.8       45.2
+#>              barcode GRCh38 GRCm39   call our_classification pct_human pct_mouse
+#> 1 AAACCCAAGAACAAGG-1  24584    258 GRCh38            Singlet     98.96      1.04
+#> 2 AAACCCAAGCGGACAT-1  35765    473 GRCh38            Singlet     98.69      1.31
+#> 3 AAACCCAAGGTGCTTT-1  24588    307 GRCh38            Singlet     98.77      1.23
 ```
 
 By default this also draws diagnostic plots (total reads vs. percent mouse),
@@ -92,7 +93,7 @@ seu_clean <- remove_multiplets_seurat(seu, res)
 seu <- remove_multiplets_seurat(seu, res, remove = FALSE)
 table(seu$multipletR_class)
 #>     Human     Mouse  Multiplet
-#>     10937      2432        280
+#>      8629      3103        544
 
 # Visualize where the multiplets fall on a UMAP:
 DimPlot(seu, group.by = "multipletR_class")
