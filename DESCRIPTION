@@ -18,7 +18,11 @@ Imports:
     diptest,
     ggplot2,
     patchwork,
+    scales,
     stats,
     utils
 Suggests:
-    Seurat
+    Seurat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

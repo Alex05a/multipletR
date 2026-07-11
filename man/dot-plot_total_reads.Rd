@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting_functions.R
 \name{.plot_total_reads}
 \alias{.plot_total_reads}
-\title{Total-reads plots: mouse reads vs human reads, 10x vs our classification}
+\title{Total-reads plots: mouse reads vs human reads, 10x vs multipletR classification}
 \usage{
 .plot_total_reads(cc)
 }
@@ -15,7 +15,7 @@ A patchwork object (two panels side by side).
 }
 \description{
 Draws two side-by-side scatter plots of mouse reads (x) against human reads
-(y): one colored by the original 10x classification, one by our multiplet
+(y): one colored by the original 10x classification, one by the multipletR
 classification.
 }
 \keyword{internal}

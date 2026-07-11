@@ -1,0 +1,216 @@
+---
+title: "Detecting human-mouse multiplets in PDX single-cell data with multipletR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Detecting human-mouse multiplets in PDX single-cell data with multipletR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  fig.width  = 8,
+  fig.height = 4
+)
+```
+
+## Overview
+
+In a patient-derived xenograft (PDX) experiment a human tumor grows inside a
+mouse host, so a dissociated sample contains both human tumor cells and mouse
+stromal and immune cells. When such a sample is run through droplet-based
+single-cell RNA-sequencing, some droplets capture a human cell and a mouse cell
+together. These cross-species **multiplets** must be found and removed before
+downstream analysis.
+
+`multipletR` detects these multiplets from the file 10x Cell Ranger already
+produces, using an adaptive threshold method that, unlike a fixed cutoff, does
+not assume a fixed human/mouse proportion. This vignette walks through the input
+it needs, the main detection function, the diagnostic plots, and how to use the
+results with a Seurat object.
+
+```{r load}
+library(multipletR)
+```
+
+## The input: Cell Ranger's GEM classification file
+
+The package takes a single file as its primary input: the GEM classification CSV
+produced by Cell Ranger when reads are aligned to a combined two-species
+reference. This section explains where that file comes from, where to find it,
+and what it contains.
+
+### How the data is generated
+
+In droplet-based single-cell RNA-sequencing (10x Genomics Chromium), each
+droplet (a GEM, Gel Bead-in-EMulsion) captures one or more cells together with a
+barcoded gel bead, so every cell's transcripts inherit a shared cell barcode and
+each molecule gets a unique molecular identifier (UMI). Most droplets contain a
+single cell (a singlet), but some capture two or more; when those cells come from
+different species, the droplet is a human-mouse multiplet.
+
+To tell the two species apart, reads are aligned with `cellranger count`
+against a combined ("barnyard") reference that contains both genomes, for example
+GRCh38 (human) and GRCm39 (mouse). In this reference every gene is prefixed by
+its genome of origin (e.g. `GRCh38-EPCAM`, `GRCm39-Col1a1`), so each read can be
+attributed to human or mouse. For every cell barcode, Cell Ranger counts how
+many reads map to each genome and, using fixed count thresholds, labels the
+barcode as human, mouse, or a multiplet. This per-barcode, two-genome summary is
+written to the GEM classification file.
+
+### Where to find it
+
+The file is written only when the reference is a multi-genome (barnyard)
+reference. For a run with `--id=<SAMPLE>`, it is located at:
+
+```
+<SAMPLE>/outs/analysis/gem_classification.csv
+```
+
+The full expression matrix lives separately at
+`<SAMPLE>/outs/filtered_feature_bc_matrix/`. `multipletR` does not need the
+matrix, only `gem_classification.csv`, although the Seurat helper later joins the
+calls back onto a matrix-derived object by barcode.
+
+### What it contains
+
+One row per cell barcode, with these columns:
+
+| Column | Meaning |
+|---|---|
+| `barcode` | The 10x cell barcode (often carries a `-1` suffix, e.g. `AAACCTGAG...-1`). |
+| *human genome* | Per-barcode count of reads assigned to the human genome, named after the reference build, e.g. `GRCh38`. |
+| *mouse genome* | Per-barcode count of reads assigned to the mouse genome, named after the build: `GRCm39` (2024-A references), or `mm10` / `mm39` for older builds. |
+| `call` | Cell Ranger's own classification: the human genome name (e.g. `GRCh38`), the mouse genome name (e.g. `GRCm39`), or `Multiplet`. |
+
+The package ships a real PDX example (sample 12G). Here are the first rows:
+
+```{r peek-input}
+gem_file <- system.file("extdata", "12G_gem_classification.csv",
+                        package = "multipletR")
+head(read.csv(gem_file))
+```
+
+`multipletR` derives, for each barcode, the total reads (human + mouse) and the
+percent mouse (mouse / total x 100), and applies its adaptive thresholds in that
+total-reads by percent-mouse space rather than trusting Cell Ranger's fixed
+`call`. The `call` column is kept only for the comparison plots.
+
+### Column-name flexibility
+
+Because the genome columns are named after whichever reference build was used,
+`multipletR` recognizes several common names automatically, so you do not have to
+rename anything:
+
+- **Human:** `GRCh38`, `hg38`, `human_reads`, `human`
+- **Mouse:** `GRCm39`, `mm10`, `mm39`, `mouse_reads`, `mouse`
+- **Barcode:** `barcode`, `Barcode`, `barcodes` (if none is present, the row index is used as a fallback)
+- **Call:** `call`, `Call`, `classification`
+
+As long as the file has a human read-count column and a mouse read-count column,
+`detect_multiplets()` will run; the barcode and call columns are optional but
+recommended (the barcode is what lets you match results back to a Seurat object).
+
+**Tip:** barcode suffixes must match between the GEM file and any Seurat object
+you later filter. Cell Ranger writes barcodes with a trailing `-1`; if your
+Seurat object's cell names lack it (or vice versa), `remove_multiplets_seurat()`
+will match nothing. Make the two consistent before joining.
+
+## Detecting multiplets
+
+`detect_multiplets()` reads the GEM classification file, runs the adaptive
+threshold engine, writes an annotated CSV, and (by default) draws diagnostic
+plots. It returns the input data with three added columns: `our_classification`
+(`Multiplet` / `Singlet`), `pct_human`, and `pct_mouse`.
+
+```{r detect, fig.alt = "Diagnostic percent plots colored by 10X and by our classification"}
+res <- detect_multiplets(
+  fileIn  = gem_file,
+  fileOut = tempfile(fileext = ".csv")
+)
+```
+
+The one-line summary reports the final thresholds and the number of multiplets
+found. The returned data frame carries the per-cell result:
+
+```{r result}
+head(res)
+
+table(res$our_classification)
+```
+
+### Reading the diagnostic plot
+
+The plot drawn above shows total reads (x) against percent mouse (y), with two
+panels: the left colored by Cell Ranger's `call`, the right by our
+classification. In the right panel our multiplets sit in the central
+percent-mouse band, where a droplet carries a real mix of human and mouse reads.
+Pure human cells fall near 0% mouse and pure mouse cells near 100%, so the
+multiplets we keep are the balanced ones in between.
+
+We can confirm the multiplets are genuinely balanced by looking at their
+composition, which centers near a 50/50 human/mouse mix:
+
+```{r composition}
+mult <- res[res$our_classification == "Multiplet", ]
+summary(mult$pct_human)
+summary(mult$pct_mouse)
+```
+
+### Adjusting the thresholds
+
+The defaults are the recommended values and rarely need changing, but every
+parameter is adjustable. The three starting thresholds are `T1` (upper percent
+mouse), `T2` (lower percent mouse), and `T3` (lower total-reads percentile); the
+two stopping sensitivities are `overlapDrop` and `modeDiff`. For example, a more
+conservative run:
+
+```{r adjust, eval = FALSE}
+res_strict <- detect_multiplets(
+  fileIn      = gem_file,
+  fileOut     = tempfile(fileext = ".csv"),
+  overlapDrop = 5,      # stop expanding sooner
+  modeDiff    = 0.5     # stricter on distribution similarity
+)
+```
+
+See `?detect_multiplets` for the full list of arguments.
+
+## Using the results with Seurat
+
+Once multiplets are detected, `remove_multiplets_seurat()` works directly on a
+Seurat object. It adds the per-cell classification to the object's metadata
+(`multipletR_class`, `multipletR_pct_human`, `multipletR_pct_mouse`) and, by
+default, removes the detected multiplets so the object is ready for downstream
+analysis. Setting `remove = FALSE` keeps all cells and only annotates them, which
+is useful for visualizing where the multiplets fall (for example on a UMAP
+colored by `multipletR_class`) before deciding whether to filter.
+
+```{r seurat, eval = FALSE}
+library(Seurat)
+
+# Build a Seurat object from the same sample's count matrix, then:
+
+# Annotate only (keep all cells) to inspect the multiplets first
+seu <- remove_multiplets_seurat(seu, res, remove = FALSE)
+table(seu$multipletR_class)
+DimPlot(seu, group.by = "multipletR_class")
+
+# Or annotate and remove in one step, ready for downstream analysis
+seu_clean <- remove_multiplets_seurat(seu, res)
+```
+
+The Seurat steps are shown but not run here, since they need the full count
+matrix rather than just the GEM classification file.
+
+## Summary
+
+`multipletR` centers on two functions. `detect_multiplets()` takes a Cell Ranger
+GEM classification file and adds an adaptive multiplet classification plus the
+diagnostic plots; `remove_multiplets_seurat()` carries that result onto a Seurat
+object, annotating and optionally removing the multiplets. Because the method
+adapts its thresholds to each sample rather than assuming a fixed species
+proportion, it handles the imbalanced human/mouse mixtures typical of real PDX
+data.

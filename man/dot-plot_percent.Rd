@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotting_functions.R
 \name{.plot_percent}
 \alias{.plot_percent}
-\title{Percent plots: total reads vs percent mouse, 10x vs our classification}
+\title{Percent plots: total reads vs percent mouse, 10x vs multipletR classification}
 \usage{
 .plot_percent(cc)
 }
@@ -16,6 +16,6 @@ A patchwork object (two panels side by side).
 \description{
 Draws two side-by-side scatter plots of total reads (x) against percent
 mouse content (y): one colored by the original 10x classification, one by
-our multiplet classification.
+the multipletR classification.
 }
 \keyword{internal}
