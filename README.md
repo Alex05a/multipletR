@@ -10,6 +10,26 @@ them using an adaptive threshold method that, unlike fixed cutoffs, does **not**
 assume a fixed human/mouse proportion — so it handles the imbalanced species
 mixtures typical of real PDX samples.
 
+## The problem
+
+In a PDX sample, human tumor cells and mouse host cells are sequenced together,
+and some droplets capture one of each — a human–mouse multiplet. Cell Ranger
+flags multiplets with fixed read-count thresholds that assume a roughly balanced
+human/mouse mix. In real PDX data the mix is rarely balanced, so cells that are
+almost entirely human (or mouse) get mislabeled as multiplets.
+
+![The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data.](man/figures/figure1_problem.png)
+
+## The approach
+
+Instead of fixed cutoffs, `multipletR` starts from a conservative central region
+(cells with a genuinely balanced human/mouse mix) and expands three thresholds
+step by step, stopping once the selected cells stop looking like real multiplets
+(when their read distributions become bimodal, stop overlapping, or drift apart).
+This lets the multiplet region adapt to each sample.
+
+![The adaptive method: starting from a conservative region and expanding the thresholds until the read distributions no longer look like balanced multiplets.](man/figures/figure2_algorithm.png)
+
 ## Installation
 
 Install the released version as: 
