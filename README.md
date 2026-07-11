@@ -51,7 +51,9 @@ The Seurat helper functions additionally require the `Seurat` package.
 
 The core function, `detect_multiplets()`, reads a 10x Cell Ranger GEM
 classification file and returns the same data with our multiplet classification
-added.
+added. For a full explanation of the `gem_classification.csv` input — how it is
+generated, where to find it in the Cell Ranger output, and what it contains — see
+the package vignette (`vignette("multipletR-introduction")`).
 
 ```r
 library(multipletR)
