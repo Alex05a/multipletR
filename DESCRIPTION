@@ -1,7 +1,7 @@
 Package: multipletR
 Type: Package
 Title: Adaptive Detection of Human-Mouse Multiplets in PDX Single-Cell Data
-Version: 0.1.0
+Version: 0.99.0
 Authors@R:
     person("Alexandra", "Gerveni", email = "gervenia@vcu.edu", role = c("aut", "cre"))
 Description: Detects human-mouse multiplets in patient-derived xenograft (PDX)
@@ -26,3 +26,6 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+biocViews: SingleCell, RNASeq, Preprocessing, QualityControl, Transcriptomics
+URL: https://github.com/Alex05a/multipletR
+BugReports: https://github.com/Alex05a/multipletR/issues

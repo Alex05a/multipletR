@@ -74,3 +74,14 @@ manuscript. They define the conservative starting region that is then
 expanded adaptively; the defaults are the values we recommend and they
 rarely need to be changed.
 }
+\examples{
+# Detect multiplets in the bundled example PDX dataset (sample 12G)
+gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  package = "multipletR"
+)
+res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
+  plotPercent = FALSE, plotTotalReads = FALSE
+)
+table(res$our_classification)
+
+}

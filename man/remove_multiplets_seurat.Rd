@@ -44,14 +44,27 @@ DoubletFinder: each cell is labeled Human, Mouse, or Multiplet, and the
 percent human / percent mouse are added per cell.
 }
 \examples{
-\dontrun{
-  res <- detect_multiplets("gem_classification.csv", "out.csv")
+\dontshow{if (requireNamespace("Seurat", quietly = TRUE)) withAutoprint(\{ # examplesIf}
+# Detect multiplets in the bundled example dataset
+gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  package = "multipletR"
+)
+res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
+  plotPercent = FALSE, plotTotalReads = FALSE
+)
 
-  # Default: annotate and remove multiplets, ready for downstream analysis
-  seu_clean <- remove_multiplets_seurat(seu, res)
+# Build a minimal Seurat object whose cell names are the same barcodes
+counts <- matrix(rpois(20 * nrow(res), 5),
+  nrow = 20,
+  dimnames = list(paste0("gene", 1:20), res$barcode)
+)
+seu <- Seurat::CreateSeuratObject(counts)
 
-  # Annotate only, keeping all cells (e.g. to visualize on a UMAP first)
-  seu <- remove_multiplets_seurat(seu, res, remove = FALSE)
-  DimPlot(seu, group.by = "multipletR_class")
-}
+# Annotate only (keep all cells), e.g. to visualize before filtering
+seu <- remove_multiplets_seurat(seu, res, remove = FALSE)
+table(seu$multipletR_class)
+
+# Or annotate and remove the multiplets in one step
+seu_clean <- remove_multiplets_seurat(seu, res)
+\dontshow{\}) # examplesIf}
 }

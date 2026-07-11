@@ -29,8 +29,8 @@
 #'   expansion history, and the total number of rounds.
 #' @keywords internal
 find_adaptive_thresholds_3t <- function(data,
-                                        percent_lower    = 30,
-                                        percent_upper    = 70,
+                                        percent_lower = 30,
+                                        percent_upper = 70,
                                         reads_percentile = 25,
                                         step_size_reads = 500,
                                         step_size_pct = 1,
@@ -87,7 +87,7 @@ find_adaptive_thresholds_3t <- function(data,
   iterations_count <- c(0, 0, 0)
   history <- data.frame()
   previous_metrics <- initial_metrics
-  peak_overlap     <- initial_metrics$pct_overlap
+  peak_overlap <- initial_metrics$pct_overlap
   below_peak_count <- 0
   if (verbose) {
     cat("----------------------------------------------------------------\n")
@@ -99,7 +99,7 @@ find_adaptive_thresholds_3t <- function(data,
     round_num <- round_num + 1
     if (round_num > 1000) {
       if (verbose) cat("\n*** Safety limit reached (1000 rounds) ***\n")
-      for (t in 1:3) {
+      for (t in seq_len(3)) {
         if (can_expand[t]) stop_reasons[t] <- "Safety limit (1000 rounds)"
       }
       break
@@ -107,7 +107,7 @@ find_adaptive_thresholds_3t <- function(data,
     if (verbose && round_num %% 10 == 1) {
       cat("--- Round", round_num, "---\n")
     }
-    for (t in 1:3) {
+    for (t in seq_len(3)) {
       if (!can_expand[t]) next
       iterations_count[t] <- iterations_count[t] + 1
       step <- if (t == 3) step_size_reads else step_size_pct
@@ -128,16 +128,23 @@ find_adaptive_thresholds_3t <- function(data,
       }
       if (boundary_reached) {
         can_expand[t] <- FALSE
-        b_cells   <- select_cells_in_rectangle(data, new_thresholds)
+        b_cells <- select_cells_in_rectangle(data, new_thresholds)
         b_metrics <- calculate_adaptive_metrics(b_cells, min_cells_for_bimodality)
         if (isTRUE(b_metrics$human_bimodal) || isTRUE(b_metrics$mouse_bimodal)) {
-          bm <- if (isTRUE(b_metrics$human_bimodal) && isTRUE(b_metrics$mouse_bimodal)) "BOTH"
-                else if (isTRUE(b_metrics$human_bimodal)) "HUMAN" else "MOUSE"
+          bm <- if (isTRUE(b_metrics$human_bimodal) && isTRUE(b_metrics$mouse_bimodal)) {
+            "BOTH"
+          } else if (isTRUE(b_metrics$human_bimodal)) "HUMAN" else "MOUSE"
           stop_reasons[t] <- paste0("Boundary rejected - would become bimodal (", bm, ")")
           if (verbose) {
-            kept_val <- switch(t, thresholds$t1_mouse_pct, thresholds$t2_human_pct, thresholds$t3_lower_reads)
+            kept_val <- switch(t,
+              thresholds$t1_mouse_pct,
+              thresholds$t2_human_pct,
+              thresholds$t3_lower_reads
+            )
             cat("  ", threshold_names[t], " -> STOPPED at ", kept_val,
-                " (boundary would be bimodal: ", bm, ", after ", iterations_count[t], " steps)\n", sep = "")
+              " (boundary would be bimodal: ", bm, ", after ", iterations_count[t], " steps)\n",
+              sep = ""
+            )
           }
         } else {
           stop_reasons[t] <- paste0("Data boundary: ", boundary_type)
@@ -146,42 +153,54 @@ find_adaptive_thresholds_3t <- function(data,
             peak_overlap <- max(peak_overlap, b_metrics$pct_overlap, na.rm = TRUE)
           }
           if (verbose) {
-            final_val <- switch(t, new_thresholds$t1_mouse_pct, new_thresholds$t2_human_pct, new_thresholds$t3_lower_reads)
+            final_val <- switch(t,
+              new_thresholds$t1_mouse_pct,
+              new_thresholds$t2_human_pct,
+              new_thresholds$t3_lower_reads
+            )
             cat("  ", threshold_names[t], " -> STOPPED at ", final_val,
-                " (", boundary_type, " after ", iterations_count[t], " steps)\n", sep = "")
+              " (", boundary_type, " after ", iterations_count[t], " steps)\n",
+              sep = ""
+            )
           }
         }
         next
       }
       new_cells <- select_cells_in_rectangle(data, new_thresholds)
       new_metrics <- calculate_adaptive_metrics(new_cells, min_cells_for_bimodality)
-      stop_check <- should_stop_expanding(new_metrics, previous_metrics,
-                                          overlap_drop_threshold,
-                                          mode_diff_increase_threshold)
+      stop_check <- should_stop_expanding(
+        new_metrics, previous_metrics,
+        overlap_drop_threshold,
+        mode_diff_increase_threshold
+      )
       if (!stop_check$stop &&
-          (isTRUE(new_metrics$human_bimodal) || isTRUE(new_metrics$mouse_bimodal))) {
-        bm <- if (isTRUE(new_metrics$human_bimodal) && isTRUE(new_metrics$mouse_bimodal)) "BOTH"
-              else if (isTRUE(new_metrics$human_bimodal)) "HUMAN" else "MOUSE"
-        stop_check$stop   <- TRUE
+        (isTRUE(new_metrics$human_bimodal) || isTRUE(new_metrics$mouse_bimodal))) {
+        bm <- if (isTRUE(new_metrics$human_bimodal) && isTRUE(new_metrics$mouse_bimodal)) {
+          "BOTH"
+        } else if (isTRUE(new_metrics$human_bimodal)) "HUMAN" else "MOUSE"
+        stop_check$stop <- TRUE
         stop_check$reason <- paste0("Combined selection became bimodal (", bm, ")")
       }
       if (!stop_check$stop && !is.na(new_metrics$pct_overlap) &&
-          (peak_overlap - new_metrics$pct_overlap) > overlap_drop_threshold) {
+        (peak_overlap - new_metrics$pct_overlap) > overlap_drop_threshold) {
         below_peak_count <- below_peak_count + 1
         if (below_peak_count >= overlap_patience) {
-          stop_check$stop   <- TRUE
-          stop_check$reason <- paste0("Overlap ",
-                                      round(peak_overlap - new_metrics$pct_overlap, 1),
-                                      "% below peak (", round(peak_overlap, 1), "%) for ",
-                                      overlap_patience, " steps")
+          stop_check$stop <- TRUE
+          stop_check$reason <- paste0(
+            "Overlap ",
+            round(peak_overlap - new_metrics$pct_overlap, 1),
+            "% below peak (", round(peak_overlap, 1), "%) for ",
+            overlap_patience, " steps"
+          )
         }
       } else if (!is.na(new_metrics$pct_overlap)) {
         below_peak_count <- 0
       }
       current_val <- switch(t,
-                            new_thresholds$t1_mouse_pct,
-                            new_thresholds$t2_human_pct,
-                            new_thresholds$t3_lower_reads)
+        new_thresholds$t1_mouse_pct,
+        new_thresholds$t2_human_pct,
+        new_thresholds$t3_lower_reads
+      )
       hist_row <- data.frame(
         round = round_num, threshold = threshold_names[t], threshold_num = t,
         value = current_val, n_cells = new_metrics$n_cells,
@@ -197,12 +216,15 @@ find_adaptive_thresholds_3t <- function(data,
         can_expand[t] <- FALSE
         stop_reasons[t] <- stop_check$reason
         last_good_val <- switch(t,
-                                thresholds$t1_mouse_pct,
-                                thresholds$t2_human_pct,
-                                thresholds$t3_lower_reads)
+          thresholds$t1_mouse_pct,
+          thresholds$t2_human_pct,
+          thresholds$t3_lower_reads
+        )
         if (verbose) {
           cat("  ", threshold_names[t], " -> STOPPED at ", last_good_val,
-              " (", stop_check$reason, " after ", iterations_count[t], " steps)\n", sep = "")
+            " (", stop_check$reason, " after ", iterations_count[t], " steps)\n",
+            sep = ""
+          )
         }
       } else {
         thresholds <- new_thresholds
@@ -222,17 +244,25 @@ find_adaptive_thresholds_3t <- function(data,
     cat("FINAL OPTIMAL THRESHOLDS (3-THRESHOLD)\n")
     cat("===================================================================\n\n")
     cat("THRESHOLD DETAILS:\n")
-    cat(sprintf("  T1 (mouse %%): %d%% -> %d%% (%d steps) [%s]\n",
-                initial_thresholds_copy$t1_mouse_pct, thresholds$t1_mouse_pct,
-                iterations_count[1], stop_reasons[1]))
-    cat(sprintf("  T2 (human %%): %d%% -> %d%% (%d steps) [%s]\n",
-                initial_thresholds_copy$t2_human_pct, thresholds$t2_human_pct,
-                iterations_count[2], stop_reasons[2]))
-    cat(sprintf("  T3 (reads): %d -> %d (%d steps) [%s]\n",
-                round(initial_thresholds_copy$t3_lower_reads), round(thresholds$t3_lower_reads),
-                iterations_count[3], stop_reasons[3]))
-    cat(sprintf("  Upper reads boundary: %d (FIXED)\n",
-                round(thresholds$upper_reads_fixed)))
+    cat(sprintf(
+      "  T1 (mouse %%): %d%% -> %d%% (%d steps) [%s]\n",
+      initial_thresholds_copy$t1_mouse_pct, thresholds$t1_mouse_pct,
+      iterations_count[1], stop_reasons[1]
+    ))
+    cat(sprintf(
+      "  T2 (human %%): %d%% -> %d%% (%d steps) [%s]\n",
+      initial_thresholds_copy$t2_human_pct, thresholds$t2_human_pct,
+      iterations_count[2], stop_reasons[2]
+    ))
+    cat(sprintf(
+      "  T3 (reads): %d -> %d (%d steps) [%s]\n",
+      round(initial_thresholds_copy$t3_lower_reads), round(thresholds$t3_lower_reads),
+      iterations_count[3], stop_reasons[3]
+    ))
+    cat(sprintf(
+      "  Upper reads boundary: %d (FIXED)\n",
+      round(thresholds$upper_reads_fixed)
+    ))
     cat("\nFINAL METRICS:\n")
     cat("  N Multiplets:  ", final_metrics$n_cells, "\n")
     cat("  % Overlap:     ", round(final_metrics$pct_overlap, 2), "%\n")

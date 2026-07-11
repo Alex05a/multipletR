@@ -10,8 +10,8 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment  = "#>",
-  fig.width  = 8,
+  comment = "#>",
+  fig.width = 8,
   fig.height = 4
 )
 ```
@@ -89,7 +89,8 @@ The package ships a real PDX example (sample 12G). Here are the first rows:
 
 ```{r peek-input}
 gem_file <- system.file("extdata", "12G_gem_classification.csv",
-                        package = "multipletR")
+  package = "multipletR"
+)
 head(read.csv(gem_file))
 ```
 
@@ -171,8 +172,8 @@ conservative run:
 res_strict <- detect_multiplets(
   fileIn      = gem_file,
   fileOut     = tempfile(fileext = ".csv"),
-  overlapDrop = 5,      # stop expanding sooner
-  modeDiff    = 0.5     # stricter on distribution similarity
+  overlapDrop = 5, # stop expanding sooner
+  modeDiff    = 0.5 # stricter on distribution similarity
 )
 ```
 
@@ -214,3 +215,9 @@ object, annotating and optionally removing the multiplets. Because the method
 adapts its thresholds to each sample rather than assuming a fixed species
 proportion, it handles the imbalanced human/mouse mixtures typical of real PDX
 data.
+
+## Session info
+
+```{r session-info}
+sessionInfo()
+```

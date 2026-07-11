@@ -44,44 +44,54 @@
 #' @return Invisibly, a data frame: the input data with added columns
 #'   our_classification, pct_human, and pct_mouse. Also written to \code{fileOut}.
 #'
+#' @examples
+#' # Detect multiplets in the bundled example PDX dataset (sample 12G)
+#' gem_file <- system.file("extdata", "12G_gem_classification.csv",
+#'   package = "multipletR"
+#' )
+#' res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
+#'   plotPercent = FALSE, plotTotalReads = FALSE
+#' )
+#' table(res$our_classification)
+#'
 #' @export
 detect_multiplets <- function(fileIn,
                               fileOut,
                               T1 = 70,
                               T2 = 30,
                               T3 = 25,
-                              plotPercent    = TRUE,
+                              plotPercent = TRUE,
                               plotTotalReads = FALSE,
-                              overlapDrop    = 10,
-                              modeDiff       = 0.9,
-                              verbose        = FALSE) {
-
+                              overlapDrop = 10,
+                              modeDiff = 0.9,
+                              verbose = FALSE) {
   # -- 1. Read and validate the input file ----------------------------------
   if (!file.exists(fileIn)) stop("Input file not found: ", fileIn)
   raw <- utils::read.csv(fileIn, stringsAsFactors = FALSE, check.names = FALSE)
 
   # locate the barcode, human, mouse, and call columns
   barcode_col <- intersect(c("barcode", "Barcode", "barcodes"), names(raw))[1]
-  human_col   <- intersect(c("GRCh38", "hg38", "human_reads", "human"), names(raw))[1]
-  mouse_col   <- intersect(c("mouse_reads", "GRCm39", "mm10", "mm39", "mouse"), names(raw))[1]
-  call_col    <- intersect(c("call", "Call", "classification"), names(raw))[1]
+  human_col <- intersect(c("GRCh38", "hg38", "human_reads", "human"), names(raw))[1]
+  mouse_col <- intersect(c("mouse_reads", "GRCm39", "mm10", "mm39", "mouse"), names(raw))[1]
+  call_col <- intersect(c("call", "Call", "classification"), names(raw))[1]
 
-  if (is.na(human_col) || is.na(mouse_col))
+  if (is.na(human_col) || is.na(mouse_col)) {
     stop("Could not find human (GRCh38) and mouse read-count columns in ", fileIn)
+  }
   if (is.na(barcode_col)) {
-    raw$barcode <- seq_len(nrow(raw))   # fall back to row index if no barcode
+    raw$barcode <- seq_len(nrow(raw)) # fall back to row index if no barcode
     barcode_col <- "barcode"
   }
 
   # -- 2. Build the working data frame the engine expects -------------------
   cc <- data.frame(
-    barcode   = raw[[barcode_col]],
+    barcode = raw[[barcode_col]],
     human_10x = as.numeric(raw[[human_col]]),
     mouse_10x = as.numeric(raw[[mouse_col]]),
     stringsAsFactors = FALSE
   )
-  cc$call_10x      <- if (!is.na(call_col)) raw[[call_col]] else NA_character_
-  cc$total_reads   <- cc$human_10x + cc$mouse_10x
+  cc$call_10x <- if (!is.na(call_col)) raw[[call_col]] else NA_character_
+  cc$total_reads <- cc$human_10x + cc$mouse_10x
   cc$pct_mouse_10x <- cc$mouse_10x / cc$total_reads * 100
   cc$pct_human_10x <- cc$human_10x / cc$total_reads * 100
 
@@ -107,7 +117,8 @@ detect_multiplets <- function(fileIn,
   multiplet_barcodes <- res$detected_multiplets$barcode
   out <- raw
   out$our_classification <- ifelse(cc$barcode %in% multiplet_barcodes,
-                                   "Multiplet", "Singlet")
+    "Multiplet", "Singlet"
+  )
   out$pct_human <- round(cc$pct_human_10x, 2)
   out$pct_mouse <- round(cc$pct_mouse_10x, 2)
 
@@ -117,14 +128,16 @@ detect_multiplets <- function(fileIn,
   # -- 6. Always print the final thresholds and multiplet count -------------
   th <- res$thresholds
   n_mult <- sum(out$our_classification == "Multiplet")
-  message("Final thresholds: T1 (upper % mouse) = ", th$t1_mouse_pct, "%, ",
-          "T2 (lower % mouse) = ", th$t2_human_pct, "%, ",
-          "T3 (lower reads) = ", round(th$t3_lower_reads), ". ",
-          "Detected ", n_mult, " multiplets. Wrote ", fileOut, ".")
+  message(
+    "Final thresholds: T1 (upper % mouse) = ", th$t1_mouse_pct, "%, ",
+    "T2 (lower % mouse) = ", th$t2_human_pct, "%, ",
+    "T3 (lower reads) = ", round(th$t3_lower_reads), ". ",
+    "Detected ", n_mult, " multiplets. Wrote ", fileOut, "."
+  )
 
   # -- 7. Optional plots -----------------------------------------------------
   cc$our_classification <- out$our_classification
-  if (isTRUE(plotPercent))    print(.plot_percent(cc))
+  if (isTRUE(plotPercent)) print(.plot_percent(cc))
   if (isTRUE(plotTotalReads)) print(.plot_total_reads(cc))
 
   invisible(out)
