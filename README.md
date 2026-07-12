@@ -1,47 +1,37 @@
 # multipletR
 
-Adaptive detection of human–mouse multiplets in patient-derived xenograft (PDX)
-single-cell RNA-seq data.
+Adaptive detection of human–mouse multiplets in patient-derived xenograft (PDX) single-cell RNA-seq data.
 
-In mixed-species experiments (such as PDX models, where a human tumor grows in a
-mouse host), some droplets capture both a human and a mouse cell. These
-**multiplets** must be removed before downstream analysis. `multipletR` detects
-them using an adaptive threshold method that, unlike fixed cutoffs, does **not**
-assume a fixed human/mouse proportion — so it handles the imbalanced species
-mixtures typical of real PDX samples.
+In mixed-species experiments (such as PDX models, where a human tumor grows in a mouse host), some droplets capture both a human and a mouse cell. These **multiplets** must be removed before downstream analysis. `multipletR` detects them using an adaptive threshold method that, unlike fixed cutoffs, does **not** assume a fixed human/mouse proportion — so it handles the imbalanced species mixtures typical of real PDX samples.
 
 ## The problem
 
-In a PDX sample, human tumor cells and mouse host cells are sequenced together,
-and some droplets capture one of each — a human–mouse multiplet. Cell Ranger
-flags multiplets with fixed read-count thresholds that assume a roughly balanced
-human/mouse mix. In real PDX data the mix is rarely balanced, so cells that are
-almost entirely human (or mouse) get mislabeled as multiplets.
+In a PDX sample, human tumor cells and mouse host cells are sequenced together, and some droplets capture one of each — a human–mouse multiplet. Cell Ranger flags multiplets with fixed read-count thresholds that assume a roughly balanced human/mouse mix. In real PDX data the mix is rarely balanced, so cells that are almost entirely human (or mouse) get mislabeled as multiplets.
 
-![The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data.](man/figures/figure1_problem.png)
+<p align="center">
+<img src="man/figures/figure1_problem.png" alt="The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data." width="700"/>
+</p>
 
 ## The approach
 
-Instead of fixed cutoffs, `multipletR` starts from a conservative central region
-(cells with a genuinely balanced human/mouse mix) and expands three thresholds
-step by step, stopping once the selected cells stop looking like real multiplets
-(when their read distributions become bimodal, stop overlapping, or drift apart).
-This lets the multiplet region adapt to each sample.
+Instead of fixed cutoffs, `multipletR` starts from a conservative central region (cells with a genuinely balanced human/mouse mix) and expands three thresholds step by step, stopping once the selected cells stop looking like real multiplets (when their read distributions become bimodal, stop overlapping, or drift apart). This lets the multiplet region adapt to each sample.
 
-![The adaptive method: starting from a conservative region and expanding the thresholds until the read distributions no longer look like balanced multiplets.](man/figures/figure2_algorithm.png)
+<p align="center">
+<img src="man/figures/figure2_algorithm.png" alt="The adaptive method: starting from a conservative region and expanding the thresholds until the read distributions no longer look like balanced multiplets." width="900"/>
+</p>
 
 ## Installation
 
-Install the released version as: 
+Install the released version as:
 
-```r
+``` r
 # install.packages("remotes")
 remotes::install_github("dozmorovlab/multipletR")
 ```
 
 For the latest development version, use:
 
-```r
+``` r
 remotes::install_github("Alex05a/multipletR")
 ```
 
@@ -49,13 +39,9 @@ The Seurat helper functions additionally require the `Seurat` package.
 
 ## Quick start
 
-The core function, `detect_multiplets()`, reads a 10x Cell Ranger GEM
-classification file and returns the same data with our multiplet classification
-added. For a full explanation of the `gem_classification.csv` input — how it is
-generated, where to find it in the Cell Ranger output, and what it contains — see
-the package vignette (`vignette("multipletR-introduction")`).
+The core function, `detect_multiplets()`, reads a 10x Cell Ranger GEM classification file and returns the same data with our multiplet classification added. For a full explanation of the `gem_classification.csv` input — how it is generated, where to find it in the Cell Ranger output, and what it contains — see the package vignette (`vignette("multipletR-introduction")`).
 
-```r
+``` r
 library(multipletR)
 
 res <- detect_multiplets(
@@ -71,21 +57,13 @@ head(res)
 #> 3 AAACCCAAGGTGCTTT-1  24588    307 GRCh38            Singlet     98.77      1.23
 ```
 
-By default this also draws diagnostic plots (total reads vs. percent mouse),
-colored by the 10x classification and by our method. The multiplets our method
-finds appear in the central band where human and mouse reads are balanced.
+By default this also draws diagnostic plots (total reads vs. percent mouse), colored by the 10x classification and by our method. The multiplets our method finds appear in the central band where human and mouse reads are balanced.
 
 ## Using the results with Seurat
 
-`remove_multiplets_seurat()` works on a Seurat object. It adds our per-cell
-classification to the object's metadata (Human / Mouse / Multiplet, plus percent
-human and percent mouse per cell) and, by default, removes the detected
-multiplets so the object is ready for downstream analysis. Set `remove = FALSE`
-to keep all cells and only annotate them — useful for visualizing where the
-multiplets fall before deciding whether to filter, following the same idea as
-tools like DoubletFinder.
+`remove_multiplets_seurat()` works on a Seurat object. It adds our per-cell classification to the object's metadata (Human / Mouse / Multiplet, plus percent human and percent mouse per cell) and, by default, removes the detected multiplets so the object is ready for downstream analysis. Set `remove = FALSE` to keep all cells and only annotate them — useful for visualizing where the multiplets fall before deciding whether to filter, following the same idea as tools like DoubletFinder.
 
-```r
+``` r
 library(Seurat)
 
 # Default: annotate and remove the multiplets
@@ -103,11 +81,9 @@ DimPlot(seu, group.by = "multipletR_class")
 
 ## Adjusting the parameters
 
-The defaults are the values we recommend and rarely need changing, but every
-parameter is adjustable — just pass it as a named argument. Anything you do not
-specify keeps its default.
+The defaults are the values we recommend and rarely need changing, but every parameter is adjustable — just pass it as a named argument. Anything you do not specify keeps its default.
 
-```r
+``` r
 res <- detect_multiplets(
   fileIn  = "gem_classification.csv",
   fileOut = "multiplets_out.csv",
@@ -119,23 +95,15 @@ res <- detect_multiplets(
 )
 ```
 
-Lower `overlapDrop` and `modeDiff` make the method stop expanding sooner (more
-conservative, fewer multiplets). See `?detect_multiplets` for full details on
-every argument.
+Lower `overlapDrop` and `modeDiff` make the method stop expanding sooner (more conservative, fewer multiplets). See `?detect_multiplets` for full details on every argument.
 
 ## Functions
 
 | Function | Purpose |
-|---|---|
+|------------------------------------|------------------------------------|
 | `detect_multiplets()` | Detect multiplets from a Cell Ranger GEM classification file; add our classification and draw diagnostic plots. |
 | `remove_multiplets_seurat()` | Annotate a Seurat object with our classification (Human / Mouse / Multiplet and percent human/mouse) and, by default, remove the multiplets. Set `remove = FALSE` to annotate only. |
 
 ## How it works
 
-The method defines a conservative starting region using three thresholds — T1
-(upper percent mouse), T2 (lower percent mouse), and T3 (lower total reads) —
-then expands them step by step to capture additional multiplets. It stops
-expanding when the human and mouse read distributions start to look like
-singlets: when a distribution becomes bimodal, when their overlap drops, or when
-their modes diverge. This lets the multiplet region adapt to each dataset rather
-than relying on a fixed cutoff.
+The method defines a conservative starting region using three thresholds — T1 (upper percent mouse), T2 (lower percent mouse), and T3 (lower total reads) — then expands them step by step to capture additional multiplets. It stops expanding when the human and mouse read distributions start to look like singlets: when a distribution becomes bimodal, when their overlap drops, or when their modes diverge. This lets the multiplet region adapt to each dataset rather than relying on a fixed cutoff.
