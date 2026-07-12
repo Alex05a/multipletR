@@ -39,47 +39,51 @@ find_adaptive_thresholds_3t <- function(data,
                                         overlap_patience = 3,
                                         min_cells_for_bimodality = 30,
                                         verbose = FALSE) {
+  # verbose output helper: cat-style formatting, routed through message()
+  .vcat <- function(..., sep = " ") {
+    message(paste(..., sep = sep), appendLF = FALSE)
+  }
   if (verbose) {
-    cat("===================================================================\n")
-    cat("ADAPTIVE 3-THRESHOLD ALGORITHM\n")
-    cat("T1 (mouse %), T2 (human %), T3 (total reads)\n")
-    cat("Upper reads boundary fixed at max\n")
-    cat("Stopping: bimodality + per-step drop + peak drop (patience) + mode diff\n")
-    cat("===================================================================\n\n")
+    .vcat("===================================================================\n")
+    .vcat("ADAPTIVE 3-THRESHOLD ALGORITHM\n")
+    .vcat("T1 (mouse %), T2 (human %), T3 (total reads)\n")
+    .vcat("Upper reads boundary fixed at max\n")
+    .vcat("Stopping: bimodality + per-step drop + peak drop (patience) + mode diff\n")
+    .vcat("===================================================================\n\n")
   }
   max_reads <- max(data$total_reads, na.rm = TRUE)
   min_reads <- min(data$total_reads, na.rm = TRUE)
   if (verbose) {
-    cat("PARAMETERS:\n")
-    cat("  step_size_reads:", step_size_reads, "\n")
-    cat("  step_size_pct:", step_size_pct, "%\n")
-    cat("  overlap_drop_threshold:", overlap_drop_threshold, "%\n")
-    cat("  overlap_patience:", overlap_patience, "steps\n")
-    cat("  mode_diff_increase_threshold:", mode_diff_increase_threshold, "\n")
-    cat("  min_cells_for_bimodality:", min_cells_for_bimodality, "\n\n")
-    cat("DATA RANGE:\n")
-    cat("  Min reads: ", min_reads, "\n")
-    cat("  Max reads: ", max_reads, " (upper boundary fixed here)\n\n")
+    .vcat("PARAMETERS:\n")
+    .vcat("  step_size_reads:", step_size_reads, "\n")
+    .vcat("  step_size_pct:", step_size_pct, "%\n")
+    .vcat("  overlap_drop_threshold:", overlap_drop_threshold, "%\n")
+    .vcat("  overlap_patience:", overlap_patience, "steps\n")
+    .vcat("  mode_diff_increase_threshold:", mode_diff_increase_threshold, "\n")
+    .vcat("  min_cells_for_bimodality:", min_cells_for_bimodality, "\n\n")
+    .vcat("DATA RANGE:\n")
+    .vcat("  Min reads: ", min_reads, "\n")
+    .vcat("  Max reads: ", max_reads, " (upper boundary fixed here)\n\n")
   }
   thresholds <- initialize_thresholds(data, percent_lower, percent_upper, reads_percentile)
   initial_thresholds_copy <- thresholds
   if (verbose) {
-    cat("INITIAL THRESHOLDS:\n")
-    cat("  T1 (mouse % upper):  ", thresholds$t1_mouse_pct, "% (TO BE OPTIMIZED)\n")
-    cat("  T2 (human % lower):  ", thresholds$t2_human_pct, "% (TO BE OPTIMIZED)\n")
-    cat("  T3 (total reads):    ", round(thresholds$t3_lower_reads), " (Q1 - TO BE OPTIMIZED)\n")
-    cat("  Upper reads boundary: ", round(thresholds$upper_reads_fixed), " (FIXED)\n\n")
+    .vcat("INITIAL THRESHOLDS:\n")
+    .vcat("  T1 (mouse % upper):  ", thresholds$t1_mouse_pct, "% (TO BE OPTIMIZED)\n")
+    .vcat("  T2 (human % lower):  ", thresholds$t2_human_pct, "% (TO BE OPTIMIZED)\n")
+    .vcat("  T3 (total reads):    ", round(thresholds$t3_lower_reads), " (Q1 - TO BE OPTIMIZED)\n")
+    .vcat("  Upper reads boundary: ", round(thresholds$upper_reads_fixed), " (FIXED)\n\n")
   }
   initial_cells <- select_cells_in_rectangle(data, thresholds)
   initial_metrics <- calculate_adaptive_metrics(initial_cells, min_cells_for_bimodality)
   if (verbose) {
-    cat("INITIAL METRICS:\n")
-    cat("  N Cells:       ", initial_metrics$n_cells, "\n")
-    cat("  % Overlap:     ", round(initial_metrics$pct_overlap, 2), "%\n")
-    cat("  Area Overlap:  ", round(initial_metrics$area_overlap, 4), "\n")
-    cat("  Diff in Modes: ", round(initial_metrics$diff_modes, 4), "\n")
-    cat("  Human Bimodal: ", initial_metrics$human_bimodal, "\n")
-    cat("  Mouse Bimodal: ", initial_metrics$mouse_bimodal, "\n\n")
+    .vcat("INITIAL METRICS:\n")
+    .vcat("  N Cells:       ", initial_metrics$n_cells, "\n")
+    .vcat("  % Overlap:     ", round(initial_metrics$pct_overlap, 2), "%\n")
+    .vcat("  Area Overlap:  ", round(initial_metrics$area_overlap, 4), "\n")
+    .vcat("  Diff in Modes: ", round(initial_metrics$diff_modes, 4), "\n")
+    .vcat("  Human Bimodal: ", initial_metrics$human_bimodal, "\n")
+    .vcat("  Mouse Bimodal: ", initial_metrics$mouse_bimodal, "\n\n")
   }
   can_expand <- c(TRUE, TRUE, TRUE)
   stop_reasons <- c("Still expanding", "Still expanding", "Still expanding")
@@ -90,22 +94,22 @@ find_adaptive_thresholds_3t <- function(data,
   peak_overlap <- initial_metrics$pct_overlap
   below_peak_count <- 0
   if (verbose) {
-    cat("----------------------------------------------------------------\n")
-    cat("STARTING ROUND-ROBIN EXPANSION (T1, T2, T3)\n")
-    cat("----------------------------------------------------------------\n\n")
+    .vcat("----------------------------------------------------------------\n")
+    .vcat("STARTING ROUND-ROBIN EXPANSION (T1, T2, T3)\n")
+    .vcat("----------------------------------------------------------------\n\n")
   }
   round_num <- 0
   while (any(can_expand)) {
     round_num <- round_num + 1
     if (round_num > 1000) {
-      if (verbose) cat("\n*** Safety limit reached (1000 rounds) ***\n")
+      if (verbose) .vcat("\n*** Safety limit reached (1000 rounds) ***\n")
       for (t in seq_len(3)) {
         if (can_expand[t]) stop_reasons[t] <- "Safety limit (1000 rounds)"
       }
       break
     }
     if (verbose && round_num %% 10 == 1) {
-      cat("--- Round", round_num, "---\n")
+      .vcat("--- Round", round_num, "---\n")
     }
     for (t in seq_len(3)) {
       if (!can_expand[t]) next
@@ -141,7 +145,7 @@ find_adaptive_thresholds_3t <- function(data,
               thresholds$t2_human_pct,
               thresholds$t3_lower_reads
             )
-            cat("  ", threshold_names[t], " -> STOPPED at ", kept_val,
+            .vcat("  ", threshold_names[t], " -> STOPPED at ", kept_val,
               " (boundary would be bimodal: ", bm, ", after ", iterations_count[t], " steps)\n",
               sep = ""
             )
@@ -158,7 +162,7 @@ find_adaptive_thresholds_3t <- function(data,
               new_thresholds$t2_human_pct,
               new_thresholds$t3_lower_reads
             )
-            cat("  ", threshold_names[t], " -> STOPPED at ", final_val,
+            .vcat("  ", threshold_names[t], " -> STOPPED at ", final_val,
               " (", boundary_type, " after ", iterations_count[t], " steps)\n",
               sep = ""
             )
@@ -221,7 +225,7 @@ find_adaptive_thresholds_3t <- function(data,
           thresholds$t3_lower_reads
         )
         if (verbose) {
-          cat("  ", threshold_names[t], " -> STOPPED at ", last_good_val,
+          .vcat("  ", threshold_names[t], " -> STOPPED at ", last_good_val,
             " (", stop_check$reason, " after ", iterations_count[t], " steps)\n",
             sep = ""
           )
@@ -235,41 +239,41 @@ find_adaptive_thresholds_3t <- function(data,
       }
     }
   }
-  if (verbose) cat("\n*** All thresholds stopped at round", round_num, "***\n")
+  if (verbose) .vcat("\n*** All thresholds stopped at round", round_num, "***\n")
   final_cells <- select_cells_in_rectangle(data, thresholds)
   final_metrics <- calculate_adaptive_metrics(final_cells, min_cells_for_bimodality)
   if (verbose) {
-    cat("\n")
-    cat("===================================================================\n")
-    cat("FINAL OPTIMAL THRESHOLDS (3-THRESHOLD)\n")
-    cat("===================================================================\n\n")
-    cat("THRESHOLD DETAILS:\n")
-    cat(sprintf(
+    .vcat("\n")
+    .vcat("===================================================================\n")
+    .vcat("FINAL OPTIMAL THRESHOLDS (3-THRESHOLD)\n")
+    .vcat("===================================================================\n\n")
+    .vcat("THRESHOLD DETAILS:\n")
+    .vcat(sprintf(
       "  T1 (mouse %%): %d%% -> %d%% (%d steps) [%s]\n",
       initial_thresholds_copy$t1_mouse_pct, thresholds$t1_mouse_pct,
       iterations_count[1], stop_reasons[1]
     ))
-    cat(sprintf(
+    .vcat(sprintf(
       "  T2 (human %%): %d%% -> %d%% (%d steps) [%s]\n",
       initial_thresholds_copy$t2_human_pct, thresholds$t2_human_pct,
       iterations_count[2], stop_reasons[2]
     ))
-    cat(sprintf(
+    .vcat(sprintf(
       "  T3 (reads): %d -> %d (%d steps) [%s]\n",
       round(initial_thresholds_copy$t3_lower_reads), round(thresholds$t3_lower_reads),
       iterations_count[3], stop_reasons[3]
     ))
-    cat(sprintf(
+    .vcat(sprintf(
       "  Upper reads boundary: %d (FIXED)\n",
       round(thresholds$upper_reads_fixed)
     ))
-    cat("\nFINAL METRICS:\n")
-    cat("  N Multiplets:  ", final_metrics$n_cells, "\n")
-    cat("  % Overlap:     ", round(final_metrics$pct_overlap, 2), "%\n")
-    cat("  Area Overlap:  ", round(final_metrics$area_overlap, 4), "\n")
-    cat("  Diff in Modes: ", round(final_metrics$diff_modes, 4), "\n")
-    cat("  Human Bimodal: ", final_metrics$human_bimodal, "\n")
-    cat("  Mouse Bimodal: ", final_metrics$mouse_bimodal, "\n\n")
+    .vcat("\nFINAL METRICS:\n")
+    .vcat("  N Multiplets:  ", final_metrics$n_cells, "\n")
+    .vcat("  % Overlap:     ", round(final_metrics$pct_overlap, 2), "%\n")
+    .vcat("  Area Overlap:  ", round(final_metrics$area_overlap, 4), "\n")
+    .vcat("  Diff in Modes: ", round(final_metrics$diff_modes, 4), "\n")
+    .vcat("  Human Bimodal: ", final_metrics$human_bimodal, "\n")
+    .vcat("  Mouse Bimodal: ", final_metrics$mouse_bimodal, "\n\n")
   }
   return(list(
     thresholds = thresholds, initial_thresholds = initial_thresholds_copy,
