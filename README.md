@@ -9,7 +9,7 @@ In mixed-species experiments (such as PDX models, where a human tumor grows in a
 In a PDX sample, human tumor cells and mouse host cells are sequenced together, and some droplets capture one of each — a human–mouse multiplet. Cell Ranger flags multiplets with fixed read-count thresholds that assume a roughly balanced human/mouse mix. In real PDX data the mix is rarely balanced, so cells that are almost entirely human (or mouse) get mislabeled as multiplets.
 
 <p align="center">
-<img src="man/figures/figure1_problem.png" alt="The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data." width="700"/>
+<img src="man/figures/figure1_problem.png" alt="The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data." width="500"/>
 </p>
 
 ## The approach
