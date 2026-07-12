@@ -24,8 +24,10 @@ Imports:
 Suggests:
     Seurat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr
 biocViews: SingleCell, RNASeq, Preprocessing, QualityControl, Transcriptomics
 URL: https://github.com/Alex05a/multipletR
 BugReports: https://github.com/Alex05a/multipletR/issues
+Config/testthat/edition: 3
