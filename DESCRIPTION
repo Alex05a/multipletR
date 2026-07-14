@@ -10,8 +10,8 @@ Description: Detects human-mouse multiplets in patient-derived xenograft (PDX)
     single-cell RNA-seq data using an adaptive threshold method that does not
     assume a fixed species proportion. Takes a 10x CellRanger GEM classification
     file and returns the data with added multiplet classifications, with optional
-    diagnostic plots and helpers to annotate a Seurat object with multiplet
-    classifications or remove multiplets from it.
+    diagnostic plots and helpers to annotate a Seurat or SingleCellExperiment
+    object with multiplet classifications or remove multiplets from it.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -19,9 +19,12 @@ RoxygenNote: 7.3.3
 Imports:
     diptest,
     ggplot2,
+    methods,
     patchwork,
     scales,
+    SingleCellExperiment,
     stats,
+    SummarizedExperiment,
     utils
 Suggests:
     Seurat,
