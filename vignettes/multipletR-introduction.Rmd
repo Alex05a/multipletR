@@ -160,6 +160,8 @@ each barcode, the total reads (human + mouse) and the percent mouse
 (mouse / total x 100), and applies its adaptive thresholds in that
 total-reads by percent-mouse space rather than trusting Cell Ranger's fixed
 `call`. The `call` column is kept only for the comparison plots.
+See [make-data.R](../inst/scripts/make-data.R) for how this bundled PC65 example
+was created.
 
 ### Column-name flexibility
 

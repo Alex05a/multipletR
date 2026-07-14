@@ -154,7 +154,8 @@ to test that: the human and mouse read counts per barcode. From them,
 and the percent mouse (mouse / total x 100), and applies its adaptive
 thresholds in that total-reads by percent-mouse space rather than
 trusting Cell Ranger’s fixed `call`. The `call` column is kept only for
-the comparison plots.
+the comparison plots. See [make-data.R](inst/scripts/make-data.R) for
+how this bundled PC65 example was created.
 
 ### Column-name flexibility
 
@@ -196,7 +197,7 @@ res <- detect_multiplets(
   plotPercent    = TRUE,
   plotTotalReads = TRUE
 )
-#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\Rtmp6XngTu\file24ac30962fb3.csv.
+#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\RtmpANdKEy\file5dd83e5321f8.csv.
 ```
 
 <img src="man/figures/README-detect-1.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" /><img src="man/figures/README-detect-2.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" />
