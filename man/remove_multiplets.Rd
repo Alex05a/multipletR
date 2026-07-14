@@ -53,7 +53,7 @@ percent human / percent mouse are added per cell.
 \examples{
 \dontshow{if (requireNamespace("Seurat", quietly = TRUE)) withAutoprint(\{ # examplesIf}
 # Detect multiplets in the bundled example dataset
-gem_file <- system.file("extdata", "12G_gem_classification.csv",
+gem_file <- system.file("extdata", "PC65_gem_classification.csv",
   package = "multipletR"
 )
 res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),

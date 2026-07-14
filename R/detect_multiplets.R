@@ -45,8 +45,8 @@
 #'   our_classification, pct_human, and pct_mouse. Also written to \code{fileOut}.
 #'
 #' @examples
-#' # Detect multiplets in the bundled example PDX dataset (sample 12G)
-#' gem_file <- system.file("extdata", "12G_gem_classification.csv",
+#' # Detect multiplets in the bundled example PDX dataset (sample PC65)
+#' gem_file <- system.file("extdata", "PC65_gem_classification.csv",
 #'   package = "multipletR"
 #' )
 #' res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),

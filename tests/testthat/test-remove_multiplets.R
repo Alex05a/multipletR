@@ -1,6 +1,6 @@
 # Helper: run detect_multiplets on the bundled example and return the result.
 get_multiplets <- function() {
-  gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  gem_file <- system.file("extdata", "PC65_gem_classification.csv",
                           package = "multipletR")
   detect_multiplets(gem_file, tempfile(fileext = ".csv"),
                     plotPercent = FALSE, plotTotalReads = FALSE)

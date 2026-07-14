@@ -1,5 +1,5 @@
 test_that("detect_multiplets returns the expected structure", {
-  gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  gem_file <- system.file("extdata", "PC65_gem_classification.csv",
                           package = "multipletR")
   res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
                            plotPercent = FALSE, plotTotalReads = FALSE)
@@ -11,7 +11,7 @@ test_that("detect_multiplets returns the expected structure", {
 })
 
 test_that("detect_multiplets classifies cells as Multiplet or Singlet", {
-  gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  gem_file <- system.file("extdata", "PC65_gem_classification.csv",
                           package = "multipletR")
   res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
                            plotPercent = FALSE, plotTotalReads = FALSE)
@@ -19,14 +19,14 @@ test_that("detect_multiplets classifies cells as Multiplet or Singlet", {
   # only the two expected labels appear
   expect_setequal(unique(res$our_classification), c("Multiplet", "Singlet"))
 
-  # finds a sensible number of multiplets on the 12G example
+  # finds a sensible number of multiplets on the PC65 example
   n_mult <- sum(res$our_classification == "Multiplet")
   expect_gt(n_mult, 0)
   expect_lt(n_mult, nrow(res))
 })
 
 test_that("detect_multiplets percentages are valid", {
-  gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  gem_file <- system.file("extdata", "PC65_gem_classification.csv",
                           package = "multipletR")
   res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
                            plotPercent = FALSE, plotTotalReads = FALSE)
@@ -38,7 +38,7 @@ test_that("detect_multiplets percentages are valid", {
 })
 
 test_that("detect_multiplets writes an output file", {
-  gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  gem_file <- system.file("extdata", "PC65_gem_classification.csv",
                           package = "multipletR")
   out_file <- tempfile(fileext = ".csv")
   detect_multiplets(gem_file, out_file,
@@ -56,7 +56,7 @@ test_that("detect_multiplets errors on a missing input file", {
 })
 
 test_that("adjusting thresholds changes the number of multiplets", {
-  gem_file <- system.file("extdata", "12G_gem_classification.csv",
+  gem_file <- system.file("extdata", "PC65_gem_classification.csv",
                           package = "multipletR")
 
   res_default <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
