@@ -1,22 +1,17 @@
 ---
-title: "Detecting human-mouse multiplets in PDX single-cell data with multipletR"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Detecting human-mouse multiplets in PDX single-cell data with multipletR}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: github_document
 ---
 
-<!-- This vignette shares its content with the package README (README.Rmd).
-     The figure paths use ../man/figures/ because the vignette lives in a
-     subfolder. -->
+<!-- README.md is generated from README.Rmd. Please edit that file and knit with devtools::build_readme() -->
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
+  fig.path = "man/figures/README-",
   fig.width = 10,
-  fig.height = 4
+  fig.height = 4,
+  out.width = "100%"
 )
 ```
 
@@ -41,7 +36,7 @@ human/mouse mix. In real PDX data the mix is rarely balanced, so cells that are
 almost entirely human (or mouse) get mislabeled as multiplets.
 
 <p align="center">
-<img src="../man/figures/figure1_problem.png" alt="The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data." width="500"/>
+<img src="man/figures/figure1_problem.png" alt="The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data." width="500"/>
 </p>
 
 ## The approach
@@ -53,7 +48,7 @@ step by step, stopping once the selected cells stop looking like real multiplets
 This lets the multiplet region adapt to each sample.
 
 <p align="center">
-<img src="../man/figures/figure2_algorithm.png" alt="The adaptive method: starting from a conservative region and expanding the thresholds until the read distributions no longer look like balanced multiplets." width="900"/>
+<img src="man/figures/figure2_algorithm.png" alt="The adaptive method: starting from a conservative region and expanding the thresholds until the read distributions no longer look like balanced multiplets." width="900"/>
 </p>
 
 ## Installation
@@ -277,7 +272,7 @@ Use `object = "seurat"` for a Seurat object or `object = "sce"` for a
 `SingleCellExperiment`; the classification logic is identical, only the metadata
 is written to the appropriate slot.
 
-```{r seurat, eval = FALSE}
+``` r
 library(Seurat)
 # Build a Seurat object from the same sample's count matrix, then:
 # Annotate only (keep all cells) to inspect the multiplets first
@@ -290,7 +285,7 @@ seu_clean <- remove_multiplets(seu, res, object = "seurat")
 
 The same call works for a `SingleCellExperiment`:
 
-```{r sce, eval = FALSE}
+``` r
 library(SingleCellExperiment)
 # With an existing SingleCellExperiment 'sce' whose colnames are barcodes:
 sce <- remove_multiplets(sce, res, object = "sce", remove = FALSE)
@@ -318,9 +313,3 @@ when the human and mouse read distributions start to look like singlets: when a
 distribution becomes bimodal, when their overlap drops, or when their modes
 diverge. This lets the multiplet region adapt to each dataset rather than relying
 on a fixed cutoff.
-
-## Session info
-
-```{r session-info}
-sessionInfo()
-```
