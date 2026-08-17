@@ -44,17 +44,26 @@ region adapt to each sample.
 
 ## Installation
 
-Install the released version as:
+Once accepted to Bioconductor, install with:
+
+``` r
+if (!require("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+BiocManager::install("multipletR")
+```
+
+Until then, install the development version from GitHub with:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("dozmorovlab/multipletR")
+remotes::install_github("Alex05a/multipletR")
 ```
 
-For the latest development version, use:
+A fork is also maintained by the Dozmorov lab:
 
 ``` r
-remotes::install_github("Alex05a/multipletR")
+remotes::install_github("dozmorovlab/multipletR")
 ```
 
 The `remove_multiplets()` helper additionally requires either the
@@ -197,7 +206,7 @@ res <- detect_multiplets(
   plotPercent    = TRUE,
   plotTotalReads = TRUE
 )
-#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\RtmpANdKEy\file5dd83e5321f8.csv.
+#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\Rtmp0Mb3Dl\file8224710333c3.csv.
 ```
 
 <img src="man/figures/README-detect-1.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" /><img src="man/figures/README-detect-2.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" />
@@ -207,13 +216,20 @@ multiplets found. The returned data frame carries the per-cell result:
 
 ``` r
 head(res)
-#>              barcode GRCh38 GRCm39      call our_classification pct_human pct_mouse
-#> 1 AAACCAAAGCAAGTGG-1   8755    123    GRCh38            Singlet     98.61      1.39
-#> 2 AAACCAAAGCGAACTC-1   1099  31769 Multiplet            Singlet      3.34     96.66
-#> 3 AAACCAAAGGAGGCAC-1  78678    452    GRCh38            Singlet     99.43      0.57
-#> 4 AAACCATTCAATGGCC-1  16813    168    GRCh38            Singlet     99.01      0.99
-#> 5 AAACCATTCAGCAACC-1   1007     27    GRCh38            Singlet     97.39      2.61
-#> 6 AAACCATTCGCATGGT-1 100603  11623 Multiplet            Singlet     89.64     10.36
+#>              barcode GRCh38 GRCm39      call our_classification pct_human
+#> 1 AAACCAAAGCAAGTGG-1   8755    123    GRCh38            Singlet     98.61
+#> 2 AAACCAAAGCGAACTC-1   1099  31769 Multiplet            Singlet      3.34
+#> 3 AAACCAAAGGAGGCAC-1  78678    452    GRCh38            Singlet     99.43
+#> 4 AAACCATTCAATGGCC-1  16813    168    GRCh38            Singlet     99.01
+#> 5 AAACCATTCAGCAACC-1   1007     27    GRCh38            Singlet     97.39
+#> 6 AAACCATTCGCATGGT-1 100603  11623 Multiplet            Singlet     89.64
+#>   pct_mouse
+#> 1      1.39
+#> 2     96.66
+#> 3      0.57
+#> 4      0.99
+#> 5      2.61
+#> 6     10.36
 table(res$our_classification)
 #> 
 #> Multiplet   Singlet 

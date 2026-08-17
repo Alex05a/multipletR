@@ -53,17 +53,21 @@ This lets the multiplet region adapt to each sample.
 
 ## Installation
 
-Install the released version as:
-
+Once accepted to Bioconductor, install with:
+``` r
+if (!require("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+BiocManager::install("multipletR")
+```
+Until then, install the development version from GitHub with:
 ``` r
 # install.packages("remotes")
-remotes::install_github("dozmorovlab/multipletR")
-```
-
-For the latest development version, use:
-
-``` r
 remotes::install_github("Alex05a/multipletR")
+```
+A fork is also maintained by the Dozmorov lab:
+``` r
+remotes::install_github("dozmorovlab/multipletR")
 ```
 
 The `remove_multiplets()` helper additionally requires either the `Seurat`
