@@ -2,10 +2,19 @@ Package: multipletR
 Type: Package
 Title: Adaptive Detection of Human-Mouse Multiplets in PDX Single-Cell Data
 Version: 0.99.0
-Authors@R:
-    person("Alexandra", "Gerveni", email = "alexandra.gerveni@hotmail.com",
+Authors@R: c(
+    person("Alexandra", "Gerveni",
+           email = "alexandra.gerveni@hotmail.com",
            role = c("aut", "cre"),
-           comment = c(ORCID = "0009-0004-5428-5889"))
+           comment = c(ORCID = "0009-0004-5428-5889")),
+    person("Amy", "Olex", role = "aut"),
+    person("Mikhail", "Dozmorov", role = c("aut", "fnd"),
+           comment = "P50AA022537"),
+    person("Gamze", "Bulut", role = "aut"),
+    person("J. Chuck", "Harrell", role = "fnd",
+           comment = "U54CA283762"),
+    person("Jose", "Trevino", role = "fnd",
+           comment = "U54CA283762"))
 Description: Detects human-mouse multiplets in patient-derived xenograft (PDX)
     single-cell RNA-seq data using an adaptive threshold method that does not
     assume a fixed species proportion. Takes a 10x CellRanger GEM classification
