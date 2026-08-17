@@ -206,7 +206,7 @@ res <- detect_multiplets(
   plotPercent    = TRUE,
   plotTotalReads = TRUE
 )
-#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\Rtmp0Mb3Dl\file8224710333c3.csv.
+#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\RtmpuUnHg0\file824471e61e96.csv.
 ```
 
 <img src="man/figures/README-detect-1.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" /><img src="man/figures/README-detect-2.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" />
@@ -309,19 +309,19 @@ where the multiplets fall (for example on a UMAP colored by
 `multipletR_class`) before deciding whether to filter, following the
 same idea as tools like DoubletFinder.
 
-Use `object = "seurat"` for a Seurat object or `object = "sce"` for a
-`SingleCellExperiment`; the classification logic is identical, only the
-metadata is written to the appropriate slot.
+The object type (Seurat or `SingleCellExperiment`) is detected
+automatically; the classification logic is identical, only the metadata
+is written to the appropriate slot.
 
 ``` r
 library(Seurat)
 # Build a Seurat object from the same sample's count matrix, then:
 # Annotate only (keep all cells) to inspect the multiplets first
-seu <- remove_multiplets(seu, res, object = "seurat", remove = FALSE)
+seu <- remove_multiplets(seu, res, remove = FALSE)
 table(seu$multipletR_class)
 DimPlot(seu, group.by = "multipletR_class")
 # Or annotate and remove in one step, ready for downstream analysis
-seu_clean <- remove_multiplets(seu, res, object = "seurat")
+seu_clean <- remove_multiplets(seu, res, remove = TRUE)
 ```
 
 The same call works for a `SingleCellExperiment`:
@@ -329,10 +329,10 @@ The same call works for a `SingleCellExperiment`:
 ``` r
 library(SingleCellExperiment)
 # With an existing SingleCellExperiment 'sce' whose colnames are barcodes:
-sce <- remove_multiplets(sce, res, object = "sce", remove = FALSE)
+sce <- remove_multiplets(sce, res, remove = FALSE)
 table(sce$multipletR_class)
 # Or annotate and remove in one step
-sce_clean <- remove_multiplets(sce, res, object = "sce")
+sce_clean <- remove_multiplets(sce, res, remove = TRUE)
 ```
 
 The object steps are shown but not run here, since they need the full

@@ -7,28 +7,29 @@
 remove_multiplets(
   x,
   multiplets,
-  object = c("seurat", "sce"),
-  remove = TRUE,
-  barcode_col = "barcode"
+  remove = FALSE,
+  barcode_col = "barcode",
+  verbose = TRUE
 )
 }
 \arguments{
 \item{x}{A single-cell object whose cell names (\code{colnames}) are
-barcodes: either a Seurat object or a \code{SingleCellExperiment}.}
+barcodes: either a Seurat object or a \code{SingleCellExperiment}. The
+object type is detected automatically.}
 
 \item{multiplets}{The data frame returned by \code{\link{detect_multiplets}}
 (must contain \code{barcode}, \code{our_classification}, \code{pct_human},
 and \code{pct_mouse}).}
 
-\item{object}{Which kind of object \code{x} is: \code{"seurat"} (the default)
-or \code{"sce"} for a \code{SingleCellExperiment}.}
-
-\item{remove}{Logical. If \code{TRUE} (the default), the detected multiplets
-are removed from the returned object. If \code{FALSE}, all cells are kept
+\item{remove}{Logical. If \code{TRUE}, the detected multiplets are removed
+from the returned object. If \code{FALSE} (the default), all cells are kept
 and only the metadata is added.}
 
 \item{barcode_col}{Name of the barcode column in \code{multiplets}. Default
 "barcode".}
+
+\item{verbose}{Logical. If \code{TRUE} (the default), print a summary of the
+annotation and removal. Set \code{FALSE} to suppress these messages.}
 }
 \value{
 The input object with three added cell-metadata columns
@@ -38,12 +39,12 @@ are also dropped.
 }
 \description{
 Adds multipletR's per-cell classification to a single-cell object's cell
-metadata and, by default, removes the detected multiplets so the object is
-ready for downstream analysis. Set \code{remove = FALSE} to keep all cells and
-only annotate them (useful for visualizing where the multiplets fall, e.g. on
-a UMAP colored by \code{multipletR_class} before deciding whether to filter).
-Works with both Seurat objects and \code{SingleCellExperiment} objects; use
-the \code{object} argument to indicate which one you are passing.
+metadata. By default all cells are kept and only annotated (useful for
+visualizing where the multiplets fall, e.g. on a UMAP colored by
+\code{multipletR_class} before deciding whether to filter). Set
+\code{remove = TRUE} to drop the detected multiplets so the object is ready
+for downstream analysis. The object type (Seurat or
+\code{SingleCellExperiment}) is detected automatically.
 }
 \details{
 The classification follows the same idea as doublet-detection tools such as
@@ -68,10 +69,10 @@ counts <- matrix(rpois(20 * nrow(res), 5),
 seu <- Seurat::CreateSeuratObject(counts)
 
 # Annotate only (keep all cells), e.g. to visualize before filtering
-seu <- remove_multiplets(seu, res, object = "seurat", remove = FALSE)
+seu <- remove_multiplets(seu, res)
 table(seu$multipletR_class)
 
 # Or annotate and remove the multiplets in one step
-seu_clean <- remove_multiplets(seu, res, object = "seurat")
+seu_clean <- remove_multiplets(seu, res, remove = TRUE)
 \dontshow{\}) # examplesIf}
 }

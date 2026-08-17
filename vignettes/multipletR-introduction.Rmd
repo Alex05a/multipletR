@@ -275,19 +275,19 @@ them, which is useful for visualizing where the multiplets fall (for example on 
 UMAP colored by `multipletR_class`) before deciding whether to filter, following
 the same idea as tools like DoubletFinder.
 
-Use `object = "seurat"` for a Seurat object or `object = "sce"` for a
-`SingleCellExperiment`; the classification logic is identical, only the metadata
-is written to the appropriate slot.
+The object type (Seurat or `SingleCellExperiment`) is detected automatically;
+the classification logic is identical, only the metadata is written to the
+appropriate slot.
 
 ```{r seurat, eval = FALSE}
 library(Seurat)
 # Build a Seurat object from the same sample's count matrix, then:
 # Annotate only (keep all cells) to inspect the multiplets first
-seu <- remove_multiplets(seu, res, object = "seurat", remove = FALSE)
+seu <- remove_multiplets(seu, res, remove = FALSE)
 table(seu$multipletR_class)
 DimPlot(seu, group.by = "multipletR_class")
 # Or annotate and remove in one step, ready for downstream analysis
-seu_clean <- remove_multiplets(seu, res, object = "seurat")
+seu_clean <- remove_multiplets(seu, res, remove = TRUE)
 ```
 
 The same call works for a `SingleCellExperiment`:
@@ -295,10 +295,10 @@ The same call works for a `SingleCellExperiment`:
 ```{r sce, eval = FALSE}
 library(SingleCellExperiment)
 # With an existing SingleCellExperiment 'sce' whose colnames are barcodes:
-sce <- remove_multiplets(sce, res, object = "sce", remove = FALSE)
+sce <- remove_multiplets(sce, res, remove = FALSE)
 table(sce$multipletR_class)
 # Or annotate and remove in one step
-sce_clean <- remove_multiplets(sce, res, object = "sce")
+sce_clean <- remove_multiplets(sce, res, remove = TRUE)
 ```
 
 The object steps are shown but not run here, since they need the full count

@@ -19,7 +19,7 @@ test_that("remove_multiplets (seurat) adds the metadata columns", {
   res <- get_multiplets()
   seu <- Seurat::CreateSeuratObject(make_counts(res))
 
-  seu <- remove_multiplets(seu, res, object = "seurat", remove = FALSE)
+  seu <- remove_multiplets(seu, res, remove = FALSE)
 
   expect_true(all(c("multipletR_class", "multipletR_pct_human",
                     "multipletR_pct_mouse") %in% names(seu[[]])))
@@ -31,7 +31,7 @@ test_that("remove_multiplets (seurat) remove = FALSE keeps all cells", {
   seu <- Seurat::CreateSeuratObject(make_counts(res))
   n_before <- ncol(seu)
 
-  seu <- remove_multiplets(seu, res, object = "seurat", remove = FALSE)
+  seu <- remove_multiplets(seu, res, remove = FALSE)
 
   expect_equal(ncol(seu), n_before)
   expect_true(all(seu$multipletR_class %in% c("Human", "Mouse", "Multiplet")))
@@ -44,7 +44,7 @@ test_that("remove_multiplets (seurat) remove = TRUE drops the multiplets", {
   n_mult <- sum(res$our_classification == "Multiplet")
   n_before <- ncol(seu)
 
-  seu_clean <- remove_multiplets(seu, res, object = "seurat", remove = TRUE)
+  seu_clean <- remove_multiplets(seu, res, remove = TRUE)
 
   expect_equal(ncol(seu_clean), n_before - n_mult)
   expect_false("Multiplet" %in% seu_clean$multipletR_class)
@@ -58,7 +58,7 @@ test_that("remove_multiplets (sce) adds the metadata columns", {
   sce <- SingleCellExperiment::SingleCellExperiment(
     assays = list(counts = make_counts(res)))
 
-  sce <- remove_multiplets(sce, res, object = "sce", remove = FALSE)
+  sce <- remove_multiplets(sce, res, remove = FALSE)
 
   cd <- SummarizedExperiment::colData(sce)
   expect_true(all(c("multipletR_class", "multipletR_pct_human",
@@ -72,7 +72,7 @@ test_that("remove_multiplets (sce) remove = FALSE keeps all cells", {
     assays = list(counts = make_counts(res)))
   n_before <- ncol(sce)
 
-  sce <- remove_multiplets(sce, res, object = "sce", remove = FALSE)
+  sce <- remove_multiplets(sce, res, remove = FALSE)
 
   expect_equal(ncol(sce), n_before)
   cls <- SummarizedExperiment::colData(sce)$multipletR_class
@@ -87,7 +87,7 @@ test_that("remove_multiplets (sce) remove = TRUE drops the multiplets", {
   n_mult <- sum(res$our_classification == "Multiplet")
   n_before <- ncol(sce)
 
-  sce_clean <- remove_multiplets(sce, res, object = "sce", remove = TRUE)
+  sce_clean <- remove_multiplets(sce, res, remove = TRUE)
 
   expect_equal(ncol(sce_clean), n_before - n_mult)
   cls <- SummarizedExperiment::colData(sce_clean)$multipletR_class
@@ -102,7 +102,7 @@ test_that("remove_multiplets errors on a non-data-frame multiplets arg", {
   seu <- Seurat::CreateSeuratObject(make_counts(res))
 
   expect_error(
-    remove_multiplets(seu, "not a data frame", object = "seurat"),
+    remove_multiplets(seu, "not a data frame"),
     "must be the data frame"
   )
 })
@@ -115,7 +115,7 @@ test_that("remove_multiplets warns when no barcodes match", {
   bad_res$barcode <- paste0("nomatch_", seq_len(nrow(bad_res)))
 
   expect_warning(
-    remove_multiplets(seu, bad_res, object = "seurat", remove = FALSE),
+    remove_multiplets(seu, bad_res, remove = FALSE),
     "None of the cell names matched"
   )
 })
