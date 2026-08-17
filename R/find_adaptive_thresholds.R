@@ -41,7 +41,8 @@ find_adaptive_thresholds_3t <- function(data,
                                         verbose = FALSE) {
   # verbose output helper: cat-style formatting, routed through message()
   .vcat <- function(..., sep = " ") {
-    message(paste(..., sep = sep), appendLF = FALSE)
+    txt <- paste(..., sep = sep)
+    message(txt, appendLF = FALSE)
   }
   if (verbose) {
     .vcat("===================================================================\n")
