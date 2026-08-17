@@ -1,0 +1,15 @@
+citHeader("To cite multipletR in publications, please use:")
+
+bibentry(
+  bibtype  = "Manual",
+  title    = "multipletR: Adaptive Detection of Human-Mouse Multiplets in PDX Single-Cell Data",
+  author   = c(
+    person("Alexandra", "Gerveni"),
+    person("Amy", "Olex"),
+    person("Mikhail", "Dozmorov"),
+    person("Gamze", "Bulut")
+  ),
+  year     = "2026",
+  note     = "R package version 0.99.0",
+  url      = "https://github.com/Alex05a/multipletR"
+)
