@@ -37,9 +37,9 @@
 #' @param modeDiff Stop expanding when the difference between the human and
 #'   mouse distribution modes increases by more than this amount from the
 #'   previous step. Default 0.9.
-#' @param verbose Logical, print the full step-by-step algorithm trace. The
-#'   final thresholds and multiplet count are always printed; verbose adds the
-#'   detailed expansion log. Default FALSE.
+#' @param verbose Logical, print progress messages including the final
+#'   thresholds, multiplet count, and the step-by-step algorithm trace. Set
+#'   FALSE to run silently. Default FALSE.
 #'
 #' @return Invisibly, a data frame: the input data with added columns
 #'   our_classification, pct_human, and pct_mouse. Also written to \code{fileOut}.
@@ -125,15 +125,17 @@ detect_multiplets <- function(fileIn,
   # -- 5. Write the output file ---------------------------------------------
   utils::write.csv(out, fileOut, row.names = FALSE)
 
-  # -- 6. Always print the final thresholds and multiplet count -------------
+  # -- 6. Print the final thresholds and multiplet count (if verbose) -------
   th <- res$thresholds
   n_mult <- sum(out$our_classification == "Multiplet")
-  message(
-    "Final thresholds: T1 (upper % mouse) = ", th$t1_mouse_pct, "%, ",
-    "T2 (lower % mouse) = ", th$t2_human_pct, "%, ",
-    "T3 (lower reads) = ", round(th$t3_lower_reads), ". ",
-    "Detected ", n_mult, " multiplets. Wrote ", fileOut, "."
-  )
+  if (verbose) {
+    message(
+      "Final thresholds: T1 (upper % mouse) = ", th$t1_mouse_pct, "%, ",
+      "T2 (lower % mouse) = ", th$t2_human_pct, "%, ",
+      "T3 (lower reads) = ", round(th$t3_lower_reads), ". ",
+      "Detected ", n_mult, " multiplets. Wrote ", fileOut, "."
+    )
+  }
 
   # -- 7. Optional plots -----------------------------------------------------
   cc$our_classification <- out$our_classification

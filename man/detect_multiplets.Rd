@@ -54,9 +54,9 @@ its running peak. Lower values are more conservative. Default 10.}
 mouse distribution modes increases by more than this amount from the
 previous step. Default 0.9.}
 
-\item{verbose}{Logical, print the full step-by-step algorithm trace. The
-final thresholds and multiplet count are always printed; verbose adds the
-detailed expansion log. Default FALSE.}
+\item{verbose}{Logical, print progress messages including the final
+thresholds, multiplet count, and the step-by-step algorithm trace. Set
+FALSE to run silently. Default FALSE.}
 }
 \value{
 Invisibly, a data frame: the input data with added columns
