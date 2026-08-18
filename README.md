@@ -51,6 +51,8 @@ if (!require("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 BiocManager::install("multipletR")
+# For the development version:
+BiocManager::install("multipletR", version = "devel")
 ```
 
 Until then, install the development version from GitHub with:
@@ -206,7 +208,7 @@ res <- detect_multiplets(
   plotPercent    = TRUE,
   plotTotalReads = TRUE
 )
-#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\RtmpuUnHg0\file824471e61e96.csv.
+#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\RtmpuUnHg0\file8244636a40dc.csv.
 ```
 
 <img src="man/figures/README-detect-1.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" /><img src="man/figures/README-detect-2.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" />
