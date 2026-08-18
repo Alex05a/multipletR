@@ -31,7 +31,7 @@ single-cell RNA-seq data.
 In mixed-species experiments (such as PDX models, where a human tumor grows in a
 mouse host), some droplets capture both a human and a mouse cell. These
 **multiplets** must be removed before downstream analysis. `multipletR` detects
-them using an adaptive threshold method that, unlike fixed cutoffs, does **not**
+them using an adaptive threshold method that does **not**
 assume a fixed human/mouse proportion, so it handles the imbalanced species
 mixtures typical of real PDX samples.
 
@@ -39,17 +39,17 @@ mixtures typical of real PDX samples.
 
 In a PDX sample, human tumor cells and mouse host cells are sequenced together,
 and some droplets capture one of each: a human-mouse multiplet. Cell Ranger flags
-multiplets with fixed read-count thresholds that assume a roughly balanced
+multiplets with read-count thresholds that assume a roughly balanced
 human/mouse mix. In real PDX data the mix is rarely balanced, so cells that are
 almost entirely human (or mouse) get mislabeled as multiplets.
 
 <p align="center">
-<img src="../man/figures/figure1_problem.png" alt="The problem: with fixed thresholds, human-dominated cells are misclassified as multiplets in imbalanced PDX data." width="500"/>
+<img src="../man/figures/figure1_problem.png" alt="The problem: human-dominated cells are misclassified as multiplets in imbalanced PDX data." width="500"/>
 </p>
 
 ## The approach
 
-Instead of fixed cutoffs, `multipletR` starts from a conservative central region
+`multipletR` starts from a conservative central region
 (cells with a genuinely balanced human/mouse mix) and expands three thresholds
 step by step, stopping once the selected cells stop looking like real multiplets
 (when their read distributions become bimodal, stop overlapping, or drift apart).
@@ -108,7 +108,7 @@ against a combined ("barnyard") reference that contains both genomes, for exampl
 GRCh38 (human) and GRCm39 (mouse). In this reference every gene is prefixed by
 its genome of origin (e.g. `GRCh38-EPCAM`, `GRCm39-Col1a1`), so each read can be
 attributed to human or mouse. For every cell barcode, Cell Ranger counts how
-many reads map to each genome and, using fixed count thresholds, labels the
+many reads map to each genome and, using count thresholds, labels the
 barcode as human, mouse, or a multiplet. This per-barcode, two-genome summary is
 written to the GEM classification file.
 
@@ -167,7 +167,7 @@ classification file provides exactly the two numbers needed to test that: the
 human and mouse read counts per barcode. From them, `multipletR` derives, for
 each barcode, the total reads (human + mouse) and the percent mouse
 (mouse / total x 100), and applies its adaptive thresholds in that
-total-reads by percent-mouse space rather than trusting Cell Ranger's fixed
+total-reads by percent-mouse space rather than trusting Cell Ranger's
 `call`. The `call` column is kept only for the comparison plots.
 See [make-data.R](../inst/scripts/make-data.R) for how this bundled PC65 example
 was created.
@@ -233,7 +233,7 @@ droplet carries a real mix of human and mouse reads; pure human cells fall near
 have substantial reads from *both* genomes, so they sit away from the two axes.
 
 The contrast with Cell Ranger is the key point. In this PDX sample Cell Ranger's
-fixed thresholds label many predominantly single-species barcodes as multiplets,
+these thresholds label many predominantly single-species barcodes as multiplets,
 whereas the adaptive method keeps only the balanced droplets. You can see the
 size of that gap directly:
 
@@ -341,8 +341,7 @@ The method defines a conservative starting region using three thresholds: T1
 expands them step by step to capture additional multiplets. It stops expanding
 when the human and mouse read distributions start to look like singlets: when a
 distribution becomes bimodal, when their overlap drops, or when their modes
-diverge. This lets the multiplet region adapt to each dataset rather than relying
-on a fixed cutoff.
+diverge. This lets the multiplet region adapt to each dataset.
 
 ## Session info
 
