@@ -313,6 +313,20 @@ sce_clean <- remove_multiplets(sce, res, remove = TRUE)
 The object steps are shown but not run here, since they need the full count
 matrix rather than just the GEM classification file.
 
+With `remove = FALSE` (the default), cells are annotated but kept, so you can
+inspect the calls first and then filter manually on `multipletR_class`. This
+gives full control over what is removed:
+
+```{r manual-remove, eval = FALSE}
+# Annotate only (the default), then filter manually on multipletR_class
+seu <- remove_multiplets(seu, res, remove = FALSE)
+seu_clean <- seu[, seu$multipletR_class != "Multiplet"]
+
+# The same pattern works for a SingleCellExperiment
+sce <- remove_multiplets(sce, res, remove = FALSE)
+sce_clean <- sce[, sce$multipletR_class != "Multiplet"]
+```
+
 ## Functions
 
 | Function | Purpose |
