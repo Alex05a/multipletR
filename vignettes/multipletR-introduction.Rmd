@@ -253,7 +253,7 @@ mouse), `T2` (lower percent mouse), and `T3` (lower total-reads percentile); the
 two stopping sensitivities are `overlapDrop` and `modeDiff`. For example, a more
 conservative run:
 
-```{r adjust, eval = FALSE}
+```{r adjust }
 res_strict <- detect_multiplets(
   fileIn      = gem_file,
   fileOut     = tempfile(fileext = ".csv"),
