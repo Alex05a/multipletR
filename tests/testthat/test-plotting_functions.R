@@ -34,10 +34,10 @@ test_that("the plotting helpers run on the bundled example data", {
   skip_if_not_installed("ggplot2")
   skip_if_not_installed("patchwork")
   gem_file <- system.file("extdata", "PC65_gem_classification.csv",
-                          package = "multipletR"
+    package = "multipletR"
   )
   res <- detect_multiplets(gem_file, tempfile(fileext = ".csv"),
-                           plotPercent = FALSE, plotTotalReads = FALSE
+    plotPercent = FALSE, plotTotalReads = FALSE
   )
   raw <- read.csv(gem_file, check.names = FALSE)
   cc <- data.frame(
@@ -47,7 +47,7 @@ test_that("the plotting helpers run on the bundled example data", {
     our_classification = res$our_classification,
     stringsAsFactors   = FALSE
   )
-  cc$total_reads   <- cc$human_10x + cc$mouse_10x
+  cc$total_reads <- cc$human_10x + cc$mouse_10x
   cc$pct_mouse_10x <- cc$mouse_10x / cc$total_reads * 100
   expect_s3_class(multipletR:::.plot_percent(cc), "ggplot")
   expect_s3_class(multipletR:::.plot_total_reads(cc), "ggplot")

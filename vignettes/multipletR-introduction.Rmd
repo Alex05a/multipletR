@@ -205,9 +205,9 @@ mouse) and the total-reads plot (mouse reads vs human reads).
 
 ```{r detect, fig.alt = "Diagnostic plots colored by 10X and by multipletR classification"}
 res <- detect_multiplets(
-  fileIn  = gem_file,
+  fileIn = gem_file,
   fileOut = tempfile(fileext = ".csv"),
-  plotPercent    = TRUE,
+  plotPercent = TRUE,
   plotTotalReads = TRUE
 )
 ```

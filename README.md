@@ -203,12 +203,11 @@ percent mouse) and the total-reads plot (mouse reads vs human reads).
 
 ``` r
 res <- detect_multiplets(
-  fileIn  = gem_file,
+  fileIn = gem_file,
   fileOut = tempfile(fileext = ".csv"),
-  plotPercent    = TRUE,
+  plotPercent = TRUE,
   plotTotalReads = TRUE
 )
-#> Final thresholds: T1 (upper % mouse) = 82%, T2 (lower % mouse) = 20%, T3 (lower reads) = 1427. Detected 59 multiplets. Wrote C:\Users\gervenia\AppData\Local\Temp\RtmpuUnHg0\file8244636a40dc.csv.
 ```
 
 <img src="man/figures/README-detect-1.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" /><img src="man/figures/README-detect-2.png" alt="Diagnostic plots colored by 10X and by multipletR classification" width="100%" />

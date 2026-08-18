@@ -102,17 +102,17 @@ remove_multiplets <- function(x,
       "Check that barcodes are in the same format (e.g. '-1' suffixes)."
     )
   }
-  class_vec     <- cls[idx]
+  class_vec <- cls[idx]
   pct_human_vec <- multiplets$pct_human[idx]
   pct_mouse_vec <- multiplets$pct_mouse[idx]
   # -- add the metadata: separate branch per object type ---------------------
   if (seu) {
-    x$multipletR_class     <- class_vec
+    x$multipletR_class <- class_vec
     x$multipletR_pct_human <- pct_human_vec
     x$multipletR_pct_mouse <- pct_mouse_vec
     class_in_obj <- x$multipletR_class
   } else {
-    SummarizedExperiment::colData(x)$multipletR_class     <- class_vec
+    SummarizedExperiment::colData(x)$multipletR_class <- class_vec
     SummarizedExperiment::colData(x)$multipletR_pct_human <- pct_human_vec
     SummarizedExperiment::colData(x)$multipletR_pct_mouse <- pct_mouse_vec
     class_in_obj <- SummarizedExperiment::colData(x)$multipletR_class
@@ -122,8 +122,8 @@ remove_multiplets <- function(x,
       "Annotated ", n_match, " of ", length(cells), " cells. ",
       "multipletR_class counts: ",
       paste(names(table(class_in_obj)),
-            table(class_in_obj),
-            sep = "=", collapse = ", "
+        table(class_in_obj),
+        sep = "=", collapse = ", "
       )
     )
   }

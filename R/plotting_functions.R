@@ -36,7 +36,7 @@ utils::globalVariables(c(
   # right: multipletR classification (human/mouse match the 10x panel; the
   # multipletR-called multiplets are red so they are distinct from 10x's orange)
   cc$our_call <- ifelse(cc$our_classification == "Multiplet", "Multiplet (multipletR call)",
-                        ifelse(cc$pct_mouse_10x < 50, "Human", "Mouse")
+    ifelse(cc$pct_mouse_10x < 50, "Human", "Mouse")
   )
   p_our <- ggplot2::ggplot(
     cc,
@@ -90,7 +90,7 @@ utils::globalVariables(c(
   # right: multipletR classification (human/mouse match the 10x panel; the
   # multipletR-called multiplets are red so they are distinct from 10x's orange)
   cc$our_call <- ifelse(cc$our_classification == "Multiplet", "Multiplet (multipletR call)",
-                        ifelse(cc$pct_mouse_10x < 50, "Human", "Mouse")
+    ifelse(cc$pct_mouse_10x < 50, "Human", "Mouse")
   )
   p_our <- ggplot2::ggplot(
     cc,

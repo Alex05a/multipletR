@@ -1,15 +1,19 @@
 # Helper: run detect_multiplets on the bundled example and return the result.
 get_multiplets <- function() {
   gem_file <- system.file("extdata", "PC65_gem_classification.csv",
-                          package = "multipletR")
+    package = "multipletR"
+  )
   detect_multiplets(gem_file, tempfile(fileext = ".csv"),
-                    plotPercent = FALSE, plotTotalReads = FALSE)
+    plotPercent = FALSE, plotTotalReads = FALSE
+  )
 }
 
 # Helper: build a minimal counts matrix whose colnames are the barcodes.
 make_counts <- function(res) {
-  matrix(rpois(20 * nrow(res), 5), nrow = 20,
-         dimnames = list(paste0("gene", 1:20), res$barcode))
+  matrix(rpois(20 * nrow(res), 5),
+    nrow = 20,
+    dimnames = list(paste0("gene", 1:20), res$barcode)
+  )
 }
 
 # ---- Seurat branch ---------------------------------------------------------
@@ -21,8 +25,10 @@ test_that("remove_multiplets (seurat) adds the metadata columns", {
 
   seu <- remove_multiplets(seu, res, remove = FALSE)
 
-  expect_true(all(c("multipletR_class", "multipletR_pct_human",
-                    "multipletR_pct_mouse") %in% names(seu[[]])))
+  expect_true(all(c(
+    "multipletR_class", "multipletR_pct_human",
+    "multipletR_pct_mouse"
+  ) %in% names(seu[[]])))
 })
 
 test_that("remove_multiplets (seurat) remove = FALSE keeps all cells", {
@@ -56,20 +62,24 @@ test_that("remove_multiplets (sce) adds the metadata columns", {
   skip_if_not_installed("SingleCellExperiment")
   res <- get_multiplets()
   sce <- SingleCellExperiment::SingleCellExperiment(
-    assays = list(counts = make_counts(res)))
+    assays = list(counts = make_counts(res))
+  )
 
   sce <- remove_multiplets(sce, res, remove = FALSE)
 
   cd <- SummarizedExperiment::colData(sce)
-  expect_true(all(c("multipletR_class", "multipletR_pct_human",
-                    "multipletR_pct_mouse") %in% names(cd)))
+  expect_true(all(c(
+    "multipletR_class", "multipletR_pct_human",
+    "multipletR_pct_mouse"
+  ) %in% names(cd)))
 })
 
 test_that("remove_multiplets (sce) remove = FALSE keeps all cells", {
   skip_if_not_installed("SingleCellExperiment")
   res <- get_multiplets()
   sce <- SingleCellExperiment::SingleCellExperiment(
-    assays = list(counts = make_counts(res)))
+    assays = list(counts = make_counts(res))
+  )
   n_before <- ncol(sce)
 
   sce <- remove_multiplets(sce, res, remove = FALSE)
@@ -83,7 +93,8 @@ test_that("remove_multiplets (sce) remove = TRUE drops the multiplets", {
   skip_if_not_installed("SingleCellExperiment")
   res <- get_multiplets()
   sce <- SingleCellExperiment::SingleCellExperiment(
-    assays = list(counts = make_counts(res)))
+    assays = list(counts = make_counts(res))
+  )
   n_mult <- sum(res$our_classification == "Multiplet")
   n_before <- ncol(sce)
 
