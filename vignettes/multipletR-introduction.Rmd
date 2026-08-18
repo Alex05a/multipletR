@@ -1,6 +1,9 @@
 ---
 title: "Detecting human-mouse multiplets in PDX single-cell data with multipletR"
-output: rmarkdown::html_vignette
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
 vignette: >
   %\VignetteIndexEntry{Detecting human-mouse multiplets in PDX single-cell data with multipletR}
   %\VignetteEngine{knitr::rmarkdown}
@@ -71,8 +74,10 @@ For the latest development version, use:
 remotes::install_github("Alex05a/multipletR")
 ```
 
-The `remove_multiplets()` helper additionally requires either the `Seurat`
-package or `SingleCellExperiment`, depending on which object type you use.
+The `remove_multiplets()` helper additionally requires either the
+`r BiocStyle::CRANpkg("Seurat")` package or
+`r BiocStyle::Biocpkg("SingleCellExperiment")`, depending on which object type
+you use.
 
 ```{r load}
 library(multipletR)
@@ -273,7 +278,7 @@ and, by default, removes the detected multiplets so the object is ready for
 downstream analysis. Setting `remove = FALSE` keeps all cells and only annotates
 them, which is useful for visualizing where the multiplets fall (for example on a
 UMAP colored by `multipletR_class`) before deciding whether to filter, following
-the same idea as tools like DoubletFinder.
+the same idea as tools like `r BiocStyle::Githubpkg("chris-mcginnis-ucsf/DoubletFinder", "DoubletFinder")`.
 
 The object type (Seurat or `SingleCellExperiment`) is detected automatically;
 the classification logic is identical, only the metadata is written to the
