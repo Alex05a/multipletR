@@ -1,5 +1,7 @@
 ---
 title: "Detecting human-mouse multiplets in PDX single-cell data with multipletR"
+author: "Alexandra Gerveni"
+date: "`r Sys.Date()`"
 output:
   BiocStyle::html_document:
     toc: true
