@@ -1,7 +1,7 @@
 Package: multipletR
 Type: Package
 Title: Adaptive Detection of Human-Mouse Multiplets in PDX Single-Cell Data
-Version: 0.99.2
+Version: 0.99.3
 Authors@R: c(
     person("Alexandra", "Gerveni",
            email = "alexandra.gerveni@hotmail.com",
@@ -20,7 +20,11 @@ Description: Detects human-mouse multiplets in patient-derived xenograft (PDX)
     assume a fixed species proportion. Takes a 10x CellRanger GEM classification
     file and returns the data with added multiplet classifications, with optional
     diagnostic plots and helpers to annotate a Seurat or SingleCellExperiment
-    object with multiplet classifications or remove multiplets from it.
+    object with multiplet classifications or remove multiplets from it. The
+    adaptive approach starts from a conservative central region of balanced
+    droplets and expands its thresholds until the selected cells no longer
+    resemble true multiplets, which handles the imbalanced species mixtures
+    common in real PDX samples.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -42,7 +46,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
-biocViews: SingleCell, RNASeq, Preprocessing, QualityControl, Transcriptomics
+biocViews: SingleCell, RNASeq, Preprocessing, QualityControl, Transcriptomics, Classification
 URL: https://github.com/Alex05a/multipletR
 BugReports: https://github.com/Alex05a/multipletR/issues
 Config/testthat/edition: 3
