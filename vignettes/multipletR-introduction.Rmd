@@ -234,8 +234,8 @@ droplet carries a real mix of human and mouse reads; pure human cells fall near
 0% mouse and pure mouse cells near 100%. In the total-reads plot, true multiplets
 have substantial reads from *both* genomes, so they sit away from the two axes.
 
-The contrast with Cell Ranger is the key point. In this PDX sample Cell Ranger's
-these thresholds label many predominantly single-species barcodes as multiplets,
+The contrast with Cell Ranger is the key point. In this PDX sample these thresholds label many
+predominantly single-species barcodes as multiplets,
 whereas the adaptive method keeps only the balanced droplets. You can see the
 size of that gap directly:
 
@@ -290,44 +290,64 @@ The object type (Seurat or `SingleCellExperiment`) is detected automatically;
 the classification logic is identical, only the metadata is written to the
 appropriate slot.
 
-```{r seurat, eval = FALSE}
-library(Seurat)
-# Build a Seurat object from the same sample's count matrix, then:
-# Annotate only (keep all cells) to inspect the multiplets first
-seu <- remove_multiplets(seu, res, remove = FALSE)
-table(seu$multipletR_class)
-DimPlot(seu, group.by = "multipletR_class")
-# Or annotate and remove in one step, ready for downstream analysis
-seu_clean <- remove_multiplets(seu, res, remove = TRUE)
+For a quick, self-contained illustration we build a small toy object whose cell
+barcodes match the detected calls. In practice you would use your own Seurat or
+`SingleCellExperiment` object built from the sample's count matrix.
+
+```{r seurat}
+if (requireNamespace("Seurat", quietly = TRUE)) {
+  # toy counts: 20 genes x the detected barcodes (stand-in for a real matrix)
+  counts <- matrix(
+    rpois(20 * nrow(res), 5),
+    nrow = 20,
+    dimnames = list(paste0("gene", 1:20), res$barcode)
+  )
+  seu <- Seurat::CreateSeuratObject(counts)
+
+  # annotate only (keep all cells) to inspect the multiplets first
+  seu <- remove_multiplets(seu, res, remove = FALSE)
+  print(table(seu$multipletR_class))
+
+  # or annotate and remove in one step, ready for downstream analysis
+  seu_clean <- remove_multiplets(seu, res, remove = TRUE)
+  print(table(seu_clean$multipletR_class))
+}
 ```
 
-The same call works for a `SingleCellExperiment`:
+The same call works for a `SingleCellExperiment`. Running it on the same data
+gives an identical classification:
 
-```{r sce, eval = FALSE}
-library(SingleCellExperiment)
-# With an existing SingleCellExperiment 'sce' whose colnames are barcodes:
-sce <- remove_multiplets(sce, res, remove = FALSE)
-table(sce$multipletR_class)
-# Or annotate and remove in one step
-sce_clean <- remove_multiplets(sce, res, remove = TRUE)
+```{r sce}
+if (requireNamespace("SingleCellExperiment", quietly = TRUE) &&
+  requireNamespace("Seurat", quietly = TRUE)) {
+  # same toy counts as above
+  counts <- matrix(
+    rpois(20 * nrow(res), 5),
+    nrow = 20,
+    dimnames = list(paste0("gene", 1:20), res$barcode)
+  )
+  sce <- SingleCellExperiment::SingleCellExperiment(
+    assays = list(counts = counts)
+  )
+  sce <- remove_multiplets(sce, res, remove = FALSE)
+  print(table(sce$multipletR_class))
+
+  # the Seurat and SCE classifications are identical
+  print(identical(
+    unname(seu$multipletR_class),
+    unname(sce$multipletR_class)
+  ))
+}
 ```
 
-The object steps are shown but not run here, since they need the full count
-matrix rather than just the GEM classification file.
+If you have a Seurat object and would rather work with a `SingleCellExperiment`, you can convert between the two with `Seurat::as.SingleCellExperiment()`.
 
 With `remove = FALSE` (the default), cells are annotated but kept, so you can
-inspect the calls first and then filter manually on `multipletR_class`. This
-gives full control over what is removed:
+inspect the calls first and then filter manually on `multipletR_class`, which
+gives full control over what is removed — for example
+`seu[, seu$multipletR_class != "Multiplet"]` for a Seurat object, or
+`sce[, sce$multipletR_class != "Multiplet"]` for a `SingleCellExperiment`.
 
-```{r manual-remove, eval = FALSE}
-# Annotate only (the default), then filter manually on multipletR_class
-seu <- remove_multiplets(seu, res, remove = FALSE)
-seu_clean <- seu[, seu$multipletR_class != "Multiplet"]
-
-# The same pattern works for a SingleCellExperiment
-sce <- remove_multiplets(sce, res, remove = FALSE)
-sce_clean <- sce[, sce$multipletR_class != "Multiplet"]
-```
 
 ## Functions
 
