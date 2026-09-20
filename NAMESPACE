@@ -2,5 +2,4 @@
 
 export(detect_multiplets)
 export(remove_multiplets)
-importFrom(SingleCellExperiment,SingleCellExperiment)
 importFrom(patchwork,wrap_plots)

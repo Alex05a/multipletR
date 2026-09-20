@@ -1,3 +1,8 @@
+# multipletR 0.99.7
+
+* Moved `SingleCellExperiment` to Suggests and removed its unused importFrom
+  (the class is checked via `methods::is()`, so the package is not needed at
+  load time). Fixes the build failure from 0.99.6.
 # multipletR 0.99.6
 
 * Moved `SummarizedExperiment` from Imports to Suggests (only used in tests).
