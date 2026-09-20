@@ -290,54 +290,51 @@ The object type (Seurat or `SingleCellExperiment`) is detected automatically;
 the classification logic is identical, only the metadata is written to the
 appropriate slot.
 
+Both helpers use `Seurat` and `SingleCellExperiment`, which are optional
+dependencies. If you do not have them, install them with:
+
+```{r install-optional, eval = FALSE}
+pkg <- c("SingleCellExperiment", "Seurat")
+for (. in pkg) if (!requireNamespace(., quietly = TRUE)) BiocManager::install(.)
+```
+
 For a quick, self-contained illustration we build a small toy object whose cell
 barcodes match the detected calls. In practice you would use your own Seurat or
 `SingleCellExperiment` object built from the sample's count matrix.
 
 ```{r seurat}
-if (requireNamespace("Seurat", quietly = TRUE)) {
-  # toy counts: 20 genes x the detected barcodes (stand-in for a real matrix)
-  counts <- matrix(
-    rpois(20 * nrow(res), 5),
-    nrow = 20,
-    dimnames = list(paste0("gene", 1:20), res$barcode)
-  )
-  seu <- Seurat::CreateSeuratObject(counts)
+# toy counts: 20 genes x the detected barcodes (stand-in for a real matrix)
+counts <- matrix(
+  rpois(20 * nrow(res), 5),
+  nrow = 20,
+  dimnames = list(paste0("gene", 1:20), res$barcode)
+)
+seu <- Seurat::CreateSeuratObject(counts)
 
-  # annotate only (keep all cells) to inspect the multiplets first
-  seu <- remove_multiplets(seu, res, remove = FALSE)
-  print(table(seu$multipletR_class))
+# annotate only (keep all cells) to inspect the multiplets first
+seu <- remove_multiplets(seu, res, remove = FALSE)
+table(seu$multipletR_class)
 
-  # or annotate and remove in one step, ready for downstream analysis
-  seu_clean <- remove_multiplets(seu, res, remove = TRUE)
-  print(table(seu_clean$multipletR_class))
-}
+# or annotate and remove in one step, ready for downstream analysis
+seu_clean <- remove_multiplets(seu, res, remove = TRUE)
+table(seu_clean$multipletR_class)
 ```
 
 The same call works for a `SingleCellExperiment`. Running it on the same data
 gives an identical classification:
 
 ```{r sce}
-if (requireNamespace("SingleCellExperiment", quietly = TRUE) &&
-  requireNamespace("Seurat", quietly = TRUE)) {
-  # same toy counts as above
-  counts <- matrix(
-    rpois(20 * nrow(res), 5),
-    nrow = 20,
-    dimnames = list(paste0("gene", 1:20), res$barcode)
-  )
-  sce <- SingleCellExperiment::SingleCellExperiment(
-    assays = list(counts = counts)
-  )
-  sce <- remove_multiplets(sce, res, remove = FALSE)
-  print(table(sce$multipletR_class))
+sce <- SingleCellExperiment::SingleCellExperiment(
+  assays = list(counts = counts)
+)
+sce <- remove_multiplets(sce, res, remove = FALSE)
+table(sce$multipletR_class)
 
-  # the Seurat and SCE classifications are identical
-  print(identical(
-    unname(seu$multipletR_class),
-    unname(sce$multipletR_class)
-  ))
-}
+# the Seurat and SCE classifications are identical
+identical(
+  unname(seu$multipletR_class),
+  unname(sce$multipletR_class)
+)
 ```
 
 If you have a Seurat object and would rather work with a `SingleCellExperiment`, you can convert between the two with `Seurat::as.SingleCellExperiment()`.

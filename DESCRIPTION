@@ -1,7 +1,7 @@
 Package: multipletR
 Type: Package
 Title: Adaptive Detection of Human-Mouse Multiplets in PDX Single-Cell Data
-Version: 0.99.5
+Version: 0.99.6
 Authors@R: c(
     person("Alexandra", "Gerveni",
            email = "alexandra.gerveni@hotmail.com",
@@ -35,13 +35,12 @@ Imports:
     methods,
     patchwork,
     scales,
-    SingleCellExperiment,
     stats,
-    SummarizedExperiment,
     utils
 Suggests:
     BiocStyle,
     Seurat,
+    SummarizedExperiment,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

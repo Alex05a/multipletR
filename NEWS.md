@@ -1,3 +1,10 @@
+# multipletR 0.99.6
+
+* Moved `SummarizedExperiment` from Imports to Suggests (only used in tests).
+* Vignette: added an install chunk for the optional Seurat/SingleCellExperiment
+  dependencies and removed the `requireNamespace()` guards and `print()` calls
+  from the example chunks.
+
 # multipletR 0.99.5
 
 * Vignette: the Seurat and `SingleCellExperiment` examples now run (removed
