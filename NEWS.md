@@ -1,3 +1,8 @@
+# multipletR 0.99.8
+
+* Kept `SingleCellExperiment` in Imports (the package supports SCE objects);
+  removed the unused importFrom so the package builds cleanly.
+
 # multipletR 0.99.7
 
 * Moved `SingleCellExperiment` to Suggests and removed its unused importFrom

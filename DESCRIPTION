@@ -35,12 +35,12 @@ Imports:
     methods,
     patchwork,
     scales,
+    SingleCellExperiment,
     stats,
     utils
 Suggests:
     BiocStyle,
     Seurat,
-    SingleCellExperiment,
     SummarizedExperiment,
     knitr,
     rmarkdown,
