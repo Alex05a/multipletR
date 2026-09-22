@@ -53,6 +53,7 @@
 #'
 #' # Or annotate and remove the multiplets in one step
 #' seu_clean <- remove_multiplets(seu, res, remove = TRUE)
+#' @importClassesFrom SingleCellExperiment SingleCellExperiment
 #' @export
 remove_multiplets <- function(x,
                               multiplets,

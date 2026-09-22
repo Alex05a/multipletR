@@ -1,3 +1,8 @@
+# multipletR 0.99.9
+
+* Added `@importClassesFrom SingleCellExperiment SingleCellExperiment` so the
+  imported class is used by the object-type check, resolving the "declared
+  Import not used" note while keeping SingleCellExperiment in Imports.
 # multipletR 0.99.8
 
 * Kept `SingleCellExperiment` in Imports (the package supports SCE objects);
